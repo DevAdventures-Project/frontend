@@ -4,6 +4,7 @@ import { EventBus } from "../EventBus";
 
 export class MainMenu extends Scene {
   background: GameObjects.Image;
+  player: GameObjects.Image;
   logo: GameObjects.Image;
   title: GameObjects.Text;
   logoTween: Phaser.Tweens.Tween | null;
@@ -12,9 +13,27 @@ export class MainMenu extends Scene {
     super("MainMenu");
   }
 
+  preload() {
+    this.load.image("player", "/assets/player.jpg");
+  }
+
+  movePlayer(callback: (pos: { x: number; y: number }) => void) {
+    if (this.player) {
+      callback({ x: this.player.x, y: this.player.y });
+    }
+  }
+
+  updatePositionPlayer(x: number, y: number) {
+    if (this.player) {
+      this.player.setPosition(x, y);
+    }
+  }
+
   create() {
     console.log("MainMenu create");
     this.background = this.add.image(512, 384, "background");
+
+    this.player = this.add.image(300, 168, "player");
 
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { MainMenu } from "./game/scenes/MainMenu";
 
@@ -20,7 +20,46 @@ export default function App() {
     }
   };
 
-  const moveSprite = () => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!phaserRef.current) return;
+  
+      const scene = phaserRef.current.scene as MainMenu;
+      if (!scene || scene.scene.key !== "MainMenu") return;
+  
+      scene.movePlayer(({ x, y }) => {
+        let newX = x;
+        let newY = y;
+  
+        switch (event.key) {
+          case "ArrowUp":
+            newY -= 10; // Move up
+            break;
+          case "ArrowDown":
+            newY += 10; // Move down
+            break;
+          case "ArrowLeft":
+            newX -= 10; // Move left
+            break;
+          case "ArrowRight":
+            newX += 10; // Move right
+            break;
+        }
+  
+        scene.updatePositionPlayer(newX, newY); // call method of mainMenu scene that move player
+        setSpritePosition({ x: newX, y: newY });
+      });
+    };
+  
+    document.addEventListener("keydown", handleKeyDown);
+  
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+
+  /*const moveSprite = () => {
     if (phaserRef.current) {
       const scene = phaserRef.current.scene as MainMenu;
 
@@ -31,7 +70,7 @@ export default function App() {
         });
       }
     }
-  };
+  };*/
 
   const addSprite = () => {
     if (phaserRef.current) {
@@ -77,7 +116,6 @@ export default function App() {
           <button
             disabled={canMoveSprite}
             className="button"
-            onClick={moveSprite}
             type="button"
           >
             Toggle Movement
