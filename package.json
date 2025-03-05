@@ -1,22 +1,25 @@
 {
-    "name": "frontend",
-    "version": "1.1.1",
-    "scripts": {
-        "dev": "next dev -p 8080 --turbo",
-        "build": "next build",
-        "lint": "biome check --write"
-    },
-    "dependencies": {
-        "next": "15.2.1",
-        "phaser": "^3.88.2",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/node": "^22.13.9",
-        "@types/react": "^19.0.10",
-        "@types/react-dom": "^19.0.4",
-        "typescript": "^5.8.2"
-    }
+  "name": "frontend",
+  "version": "1.1.1",
+  "scripts": {
+    "dev": "next dev -p 8080 --turbo",
+    "build": "next build",
+    "lint": "biome check --write --unsafe"
+  },
+  "dependencies": {
+    "next": "15.2.1",
+    "phaser": "^3.88.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "typescript": "^5.8.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@biomejs/biome"]
+  }
 }
