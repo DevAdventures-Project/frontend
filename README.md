@@ -6,7 +6,7 @@
 
 After cloning the repo, run `corepack enable pnpm && pnpm install` from your project directory. Then, you can start the local development server by running `pnpm run dev`.
 
-The local development server runs on `http://localhost:8080` by default. Please see the Next.js documentation if you wish to change this, or add SSL support.
+The local development server runs on `http://localhost:3000` by default. Please see the Next.js documentation if you wish to change this, or add SSL support.
 
 Once the server is running you can edit any of the files in the `src` folder. Next.js will automatically recompile your code and then reload the browser.
 

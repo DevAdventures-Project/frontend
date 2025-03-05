@@ -2,24 +2,52 @@ name: CI
 
 on:
   push:
-    branches: main
+    branches:
+    - main
   pull_request:
 
+
 env:
-    FORCE_COLOR: 1
-    CI: true
+  FORCE_COLOR: 1
+  CI: true
 
 jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - uses: pnpm/action-setup@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build
+      run: pnpm run build
+
   lint:
     name: Code quality
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-    
-      - name: Run Biome
-        run: biome ci .
+    - name: Setup Biome
+      uses: biomejs/setup-biome@v2
+
+    - name: Run Biome
+      run: biome ci .
