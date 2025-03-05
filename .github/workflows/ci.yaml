@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: main
+  pull_request:
+
+env:
+    FORCE_COLOR: 1
+    CI: true
+
+jobs:
+  lint:
+    name: Code quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+    
+      - name: Run Biome
+        run: biome ci .
