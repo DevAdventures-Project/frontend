@@ -51,7 +51,6 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -194,6 +193,8 @@ export class Town extends Scene implements MovableScene {
     this.npcCollider = this.wizardNpc.getCollider();
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
+
+    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
   }
 
   showQuestList(): void {

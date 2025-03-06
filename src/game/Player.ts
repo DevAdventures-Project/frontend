@@ -28,7 +28,7 @@ export class Player {
 
     if (scene.input.keyboard) {
       this.interactionKey = scene.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.E,
+        Phaser.Input.Keyboard.KeyCodes.COLON,
       );
     }
 
@@ -128,6 +128,25 @@ export class Player {
     }
 
     EventBus.emit("player-position-updated", this.playerPosition);
+  }
+
+  public setPosition(x: number, y: number): void {
+    this.updatePosition(x, y);
+  }
+
+  public update(): void {
+    if (
+      this.interactionKey &&
+      Phaser.Input.Keyboard.JustDown(this.interactionKey)
+    ) {
+      this.tryInteract();
+    }
+  }
+
+  private tryInteract(): void {
+    if (this.isDialogActive) return;
+
+    EventBus.emit("player-interact", this.playerPosition);
   }
 
   private onDialogStarted(): void {
