@@ -40,7 +40,7 @@ export class Npc {
     this.interactionIndicator = scene.add.text(
       config.x,
       config.y - 50,
-      "Press E to talk",
+      "Press - to talk",
       {
         fontFamily: "Arial",
         fontSize: "12px",
