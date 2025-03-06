@@ -61,8 +61,15 @@ export class Town extends Scene {
       repeat: -1, // Loop indefinitely
     });
 
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNumbers('player-run', { start: 0, end: 0 }),
+      frameRate: 10,
+      repeat: -1
+    });
+
     // Play the running animation
-    this.player.play("run");
+    //this.player.play("run");
 
     EventBus.emit("current-scene-ready", this);
   }

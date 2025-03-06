@@ -28,6 +28,8 @@ export default function App() {
       const scene = phaserRef.current.scene as Town;
       if (!scene || scene.scene.key !== "Town") return;
 
+      scene.player?.play("run");
+
       scene.movePlayer(({ x, y }) => {
         let newX = x;
         let newY = y;
@@ -52,10 +54,20 @@ export default function App() {
       });
     };
 
+    const handleKeyUp = (event : KeyboardEvent) => {
+      if (!phaserRef.current) return;
+    
+      const scene = phaserRef.current.scene as Town;
+      if (!scene || scene.scene.key !== "Town") return;
+      scene.player?.anims.play('idle');
+    };
+
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
