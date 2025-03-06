@@ -1,5 +1,4 @@
 import type { GameObjects, Scene } from "phaser";
-import { DialogManager } from "./DialogManager";
 import { EventBus } from "./EventBus";
 
 export interface MovableScene {
@@ -84,13 +83,13 @@ export class Player {
 
   public startRunAnimation(): void {
     if (this.isDialogActive) return;
-    if (this.scene.player) {
+    if (this.scene.player?.anims) {
       this.scene.player.anims.play("run", true);
     }
   }
 
   public startIdleAnimation(): void {
-    if (this.scene.player) {
+    if (this.scene.player?.anims) {
       this.scene.player.anims.play("idle", true);
     }
   }
@@ -115,7 +114,10 @@ export class Player {
   }
 
   public update(): void {
-    if (Phaser.Input.Keyboard.JustDown(this.interactionKey)) {
+    if (
+      this.interactionKey &&
+      Phaser.Input.Keyboard.JustDown(this.interactionKey)
+    ) {
       this.tryInteract();
     }
   }
