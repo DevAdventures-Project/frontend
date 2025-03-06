@@ -13,6 +13,7 @@ export class MainMenu extends Scene {
   }
 
   create() {
+    console.log("MainMenu create");
     this.background = this.add.image(512, 384, "background");
 
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
@@ -38,7 +39,7 @@ export class MainMenu extends Scene {
       this.logoTween = null;
     }
 
-    this.scene.start("Game");
+    this.scene.start("Town");
   }
 
   moveLogo(reactCallback: ({ x, y }: { x: number; y: number }) => void) {
