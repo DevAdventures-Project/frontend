@@ -3,8 +3,8 @@ import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
 
 export class MainMenu extends Scene {
-  background: GameObjects.Image;
   player: GameObjects.Image;
+  background: GameObjects.Image;
   logo: GameObjects.Image;
   title: GameObjects.Text;
   logoTween: Phaser.Tweens.Tween | null;
@@ -33,8 +33,6 @@ export class MainMenu extends Scene {
     console.log("MainMenu create");
     this.background = this.add.image(512, 384, "background");
 
-    this.player = this.add.image(300, 168, "player");
-
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
 
     this.title = this.add
@@ -48,6 +46,8 @@ export class MainMenu extends Scene {
       })
       .setOrigin(0.5)
       .setDepth(100);
+
+    this.player = this.add.image(300, 168, "player");
 
     EventBus.emit("current-scene-ready", this);
   }
