@@ -41,11 +41,32 @@ export class Dungeon extends Scene {
   }
 
   create() {
-    // this.map = this.make.tilemap({ key: "dungeon" });
-    // const tileset = this.map.addTilesetImage("dungeon_collisions", "dungeon");
-    // const layer = this.map.createLayer("Collisions", tileset!, 0, 0);
+  const map = this.make.tilemap({ key: "dungeon" });
+   // Add tileset
+  //  const tileset = this.map.addTilesetImage("dungeon", "dungeon");
+  //  if (!tileset) {
+  //    console.error("Tileset 'dungeon' not found in tilemap.");
+  //    return;  
+  //  }
+ 
+  //  // Create collision layer
+  //  const collisionLayer = this.map.createLayer("Obstacles", tileset, 0, 0);
+  //  if (!collisionLayer) {
+  //    console.error("Layer 'Obstacles' not found in tilemap.");
+  //    return;
+  //  }
+  // this.collisionLayer.setCollisionByExclusion([-1], true);
 
-    this.dungeon = this.add.image(600, 450, "dungeon").setDepth(0);
+  // // Debug visualization (optional)
+  // const debugGraphics = this.add.graphics().setAlpha(0.7);
+  // this.collisionLayer.renderDebug(debugGraphics, {
+  //   tileColor: null,
+  //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
+  //   faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+  // });
+
+
+    this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
       fontSize: 38,
