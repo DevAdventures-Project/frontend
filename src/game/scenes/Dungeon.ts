@@ -11,10 +11,9 @@ export class Dungeon extends Scene {
   }
 
   preload() {
-    // Load the player spritesheet with correct frame dimensions
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
-      frameWidth: 64, // Update to the correct frame width
-      frameHeight: 64, // Update to the correct frame height
+      frameWidth: 64,
+      frameHeight: 64,
     });
 
     this.load.spritesheet(
@@ -25,18 +24,17 @@ export class Dungeon extends Scene {
         frameHeight: 32,
       },
     );
-
-    this.load.image("tiles", "assets/tilemaps/tiles/dungeon.png");
-    this.load.tilemapTiledJSON("dungeon", "assets/tilemaps/json/dungeon.json");
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
+    console.log("movePlayer");
     if (this.player) {
       callback({ x: this.player.x, y: this.player.y });
     }
   }
 
   updatePositionPlayer(x: number, y: number) {
+    console.log("updatePositionPlayer");
     if (this.player) {
       this.player.setPosition(x, y);
     }
