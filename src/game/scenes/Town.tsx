@@ -8,6 +8,8 @@ import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
+import LeaderBoard from "@/components/LeaderBoard";
+import LeaderboardButton from "@/components/ui/LeaderboardToggle";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
@@ -26,6 +28,7 @@ export class Town extends Scene implements MovableScene {
   wizardNpc: Npc;
   private questListDom: Phaser.GameObjects.DOMElement | null = null;
   private createQuestDom: Phaser.GameObjects.DOMElement | null = null;
+  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null
 
   constructor() {
     super("Town");
@@ -33,6 +36,7 @@ export class Town extends Scene implements MovableScene {
 
   preload() {
     this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
+    this.addLeaderboardButton();
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -146,6 +150,18 @@ export class Town extends Scene implements MovableScene {
     this.playerMovement = new Player(this);
 
     EventBus.emit("current-scene-ready", this);
+  }
+
+  addLeaderboardButton(): void {
+    const gameHeight = this.sys.game.canvas.height
+    const gameWidth = this.sys.game.canvas.width
+
+    this.leaderboardDom = this.add.dom(
+      300, 
+      gameHeight,
+      reactToDom(<LeaderBoard/>),
+    )
+    this.leaderboardDom.setDepth(1000) // Ensure it's above other elements
   }
 
   showQuestList(): void {
