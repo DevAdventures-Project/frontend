@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -169,7 +168,12 @@ function CreateQuest() {
                     <FormItem>
                       <FormLabel>Nombre max de participant</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} min={1} />
+                        <Input
+                          type="number"
+                          {...field}
+                          min={1}
+                          maxLength={16}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -214,14 +218,12 @@ function CreateQuest() {
               />
             </ScrollArea>
             <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
+              <Button type="button" onClick={() => handleOpenChange(false)}>
                 Annuler
               </Button>
-              <Button type="submit">Créer</Button>
+              <Button type="submit" className="bg-blue-500">
+                Créer
+              </Button>
             </div>
           </form>
         </Form>
