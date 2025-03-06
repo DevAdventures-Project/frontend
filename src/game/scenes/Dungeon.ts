@@ -1,7 +1,8 @@
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
+import { type MovableScene, Player } from "../Player";
 
-export class Dungeon extends Scene {
+export class Dungeon extends Scene implements MovableScene {
   dungeon: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
@@ -13,6 +14,7 @@ export class Dungeon extends Scene {
   private isOverlapping = false;
   private portalRadius = 20;
   private playerRadius = 10;
+  playerMovement: Player;
 
   constructor() {
     super("Dungeon");
@@ -34,23 +36,7 @@ export class Dungeon extends Scene {
     );
   }
 
-  movePlayer(callback: (pos: { x: number; y: number }) => void) {
-    if (this.player) {
-      callback({ x: this.player.x, y: this.player.y });
-    }
-  }
-
-  updatePositionPlayer(x: number, y: number) {
-    if (this.player) {
-      this.player.setPosition(x, y);
-      this.updatePlayerCollider();
-      this.checkPortalCollision();
-    }
-  }
-
   create() {
-    //const map = this.make.tilemap({ key: "dungeon" });
-
     this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "Dungeon", {
       fontFamily: "Arial Black",
@@ -112,6 +98,8 @@ export class Dungeon extends Scene {
       repeat: -1,
       ease: "Sine.easeInOut",
     });
+
+    this.playerMovement = new Player(this);
 
     EventBus.emit("current-scene-ready", this);
   }
