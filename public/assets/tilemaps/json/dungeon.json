@@ -570,7 +570,7 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "..\/png\/dungeon.png"
+      "source": "../png/dungeon.png"
     }
   ],
   "tilewidth": 12,

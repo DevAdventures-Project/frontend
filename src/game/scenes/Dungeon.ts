@@ -41,30 +41,29 @@ export class Dungeon extends Scene {
   }
 
   create() {
-  const map = this.make.tilemap({ key: "dungeon" });
-   // Add tileset
-  //  const tileset = this.map.addTilesetImage("dungeon", "dungeon");
-  //  if (!tileset) {
-  //    console.error("Tileset 'dungeon' not found in tilemap.");
-  //    return;  
-  //  }
- 
-  //  // Create collision layer
-  //  const collisionLayer = this.map.createLayer("Obstacles", tileset, 0, 0);
-  //  if (!collisionLayer) {
-  //    console.error("Layer 'Obstacles' not found in tilemap.");
-  //    return;
-  //  }
-  // this.collisionLayer.setCollisionByExclusion([-1], true);
+    const map = this.make.tilemap({ key: "dungeon" });
+    // Add tileset
+    //  const tileset = this.map.addTilesetImage("dungeon", "dungeon");
+    //  if (!tileset) {
+    //    console.error("Tileset 'dungeon' not found in tilemap.");
+    //    return;
+    //  }
 
-  // // Debug visualization (optional)
-  // const debugGraphics = this.add.graphics().setAlpha(0.7);
-  // this.collisionLayer.renderDebug(debugGraphics, {
-  //   tileColor: null,
-  //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
-  //   faceColor: new Phaser.Display.Color(40, 39, 37, 255)
-  // });
+    //  // Create collision layer
+    //  const collisionLayer = this.map.createLayer("Obstacles", tileset, 0, 0);
+    //  if (!collisionLayer) {
+    //    console.error("Layer 'Obstacles' not found in tilemap.");
+    //    return;
+    //  }
+    // this.collisionLayer.setCollisionByExclusion([-1], true);
 
+    // // Debug visualization (optional)
+    // const debugGraphics = this.add.graphics().setAlpha(0.7);
+    // this.collisionLayer.renderDebug(debugGraphics, {
+    //   tileColor: null,
+    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
+    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+    // });
 
     this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
