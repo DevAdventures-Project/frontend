@@ -137,7 +137,7 @@ function CreateQuest() {
 
     return (
         <Dialog onOpenChange={handleOpenChange} open={isOpen}>
-            <DialogContent className="sm:max-w-[800px]">
+            <DialogContent className="sm:max-w-[800px] bg-amber-50">
                 <DialogHeader className="text-black">
                     <DialogTitle>Création de quête</DialogTitle>
                 </DialogHeader>
@@ -363,7 +363,8 @@ function CreateQuest() {
                         <div className="flex justify-end gap-4">
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="secondary"
+                                className="border-b-black bg-amber-700"
                                 onClick={() => handleOpenChange(false)}
                             >
                                 Annuler
@@ -374,7 +375,7 @@ function CreateQuest() {
                 </Form>
             </DialogContent>
         </Dialog>
+        
     );
 }
-
 export default CreateQuest;
