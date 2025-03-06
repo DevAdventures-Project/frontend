@@ -1,4 +1,3 @@
-import Test from "@/components/Test";
 import type { JSX } from "react";
 import ReactDOM from "react-dom/client";
 
