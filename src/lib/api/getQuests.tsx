@@ -3,7 +3,7 @@
 import type { Quest } from "@/models/Quest";
 
 export async function getQuests(): Promise<Quest[]> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = process.env.API_URL;
   console.log("API_URL", API_URL);
 
   const response = await fetch(`${API_URL}/quests`, {
