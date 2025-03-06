@@ -22,7 +22,7 @@ export class Player {
 
     if (scene.input.keyboard) {
       this.interactionKey = scene.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.MINUS,
+        Phaser.Input.Keyboard.KeyCodes.COLON,
       );
     }
 

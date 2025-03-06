@@ -107,11 +107,6 @@ export default function App() {
               Change Scene
             </button>
           </div>
-          <div>
-            <button disabled={canMoveSprite} className="button" type="button">
-              Toggle Movement
-            </button>
-          </div>
           <div className="spritePosition">
             Sprite Position:
             <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
