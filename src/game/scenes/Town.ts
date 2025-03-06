@@ -19,6 +19,15 @@ export class Town extends Scene {
       frameHeight: 64, // Update to the correct frame height
     });
 
+    this.load.spritesheet(
+      "player-idle",
+      "assets/npc/Knight/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
+
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
   }
@@ -47,7 +56,7 @@ export class Town extends Scene {
     });
 
     // Create the player sprite
-    this.player = this.add.sprite(410, 378, "player-run");
+    this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5); // Center the sprite's origin
 
     // Create the running animation
@@ -61,8 +70,19 @@ export class Town extends Scene {
       repeat: -1, // Loop indefinitely
     });
 
-    // Play the running animation
-    this.player.play("run");
+    this.player.setOrigin(0.5, 1);
+
+    this.anims.create({
+      key: "idle",
+      frames: this.anims.generateFrameNumbers("player-idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.player.anims.play("idle");
 
     EventBus.emit("current-scene-ready", this);
   }
