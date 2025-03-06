@@ -1,7 +1,7 @@
-import { type GameObjects, Scene } from "phaser";
-import { EventBus } from "../EventBus";
 import CreateQuest from "@/components/CreateQuest";
 import { reactToDom } from "@/lib/reactToDom";
+import { type GameObjects, Scene } from "phaser";
+import { EventBus } from "../EventBus";
 
 export class MainMenu extends Scene {
   background: GameObjects.Image;

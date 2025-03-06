@@ -1,7 +1,7 @@
+import ChatLayout from "@/components/ChatLayout";
+import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
-import { reactToDom } from "@/lib/reactToDom";
-import Chat from "@/components/Chat";
 
 export class Town extends Scene {
   town: GameObjects.Image;
@@ -12,13 +12,9 @@ export class Town extends Scene {
   }
 
   preload() {
-    // Load the assets
     console.log("Town preload");
 
-    // this.game.load.tilemap('MyTilemap', '/images/maps/firstMap.json', null, Phaser.Tilemap.TILED_JSON);
-    // this.game.load.image('tiles', '/images/terrain_atlas.png');
-
-    this.add.dom(100, 100, reactToDom(<Chat />));
+    this.add.dom(0, 0, reactToDom(<ChatLayout />));
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
