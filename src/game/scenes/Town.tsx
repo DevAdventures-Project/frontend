@@ -164,6 +164,8 @@ export class Town extends Scene implements MovableScene {
     this.playerMovement = new Player(this);
 
     EventBus.emit("current-scene-ready", this);
+
+    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
   }
 
   showQuestList(): void {
