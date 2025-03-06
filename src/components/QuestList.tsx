@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -11,93 +11,23 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { Quest } from "@/models/Quest";
 import { calculateRemainingTime } from "@/lib/calculateRemainingTime";
-
-// Sample quest data
-const quests: Quest[] = [
-  {
-    id: 1,
-    title: "The Lost Artifact",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras id sem id velit vehicula facilisis et eget sem. Praesent facilisis tellus pulvinar pretium luctus. Suspendisse et pulvinar arcu, at blandit arcu. Sed convallis metus ut neque dapibus, in lacinia magna scelerisque. Praesent eget viverra orci. Cras consequat ex eget magna finibus, id laoreet odio laoreet. Vivamus sit amet odio nulla. Ut porta ipsum quis tortor sollicitudin, sit amet placerat est mattis. Donec sit amet tortor vitae tortor sodales pharetra. Duis ornare in sapien ac consectetur. Suspendisse feugiat augue id bibendum placerat. Aenean ut tortor at augue varius eleifend. Etiam nec venenatis sapien, eget fermentum leo. Vivamus varius felis ut nisl sodales sagittis a et metus. Quisque quis arcu fermentum, vulputate leo ut, aliquet metus. Donec placerat pharetra metus, vitae vehicula mi. In placerat venenatis orci lacinia pharetra. Nam dignissim sit amet dui vel vehicula. Suspendisse tristique eget neque in varius. Quisque tincidunt gravida dui at vehicula. Nam efficitur diam ac nunc ullamcorper, tincidunt laoreet augue vestibulum. Quisque bibendum lectus sed lectus vehicula, et pulvinar enim placerat. Nam tempus leo eget massa placerat consectetur. Maecenas lobortis, velit vel rutrum lacinia, nisi turpis ultrices augue, at molestie elit magna ac turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel odio vel sapien tristique porttitor. Integer rhoncus lectus eu odio ullamcorper, vel consequat arcu interdum. Cras id maximus mauris. Donec in urna nec arcu mollis dictum vel lacinia libero. Maecenas elementum elementum rutrum. Etiam non odio malesuada, tristique ex quis, tristique sapien. Ut velit risus, pulvinar ac facilisis non, semper at mauris. Nam vitae lorem lorem. Ut laoreet, elit in aliquam condimentum, neque ante pretium purus, a auctor ligula augue sed quam. Sed blandit est diam, sit amet suscipit nulla ultrices consectetur. Pellentesque eget tempus odio. Integer non lorem pulvinar, porttitor nibh nec, vestibulum dui. Sed a erat vitae tortor placerat consectetur. Sed at felis tincidunt, iaculis justo dapibus, sollicitudin augue. Integer eu sollicitudin mauris, ut scelerisque enim. Phasellus tincidunt neque dui. Duis sit amet facilisis odio. Nullam nec ornare magna. Curabitur maximus eros vitae aliquam ultrices. Donec sit amet justo fringilla, interdum massa eu, dapibus diam. Etiam auctor dapibus leo sollicitudin blandit. Suspendisse rhoncus aliquet turpis, quis porta ex ornare et. Nunc sed enim non mi suscipit varius at at neque.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Cobol",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-07T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-  {
-    id: 2,
-    title: "The Lost Artifact",
-    content:
-      "Recover the ancient artifact from the abandoned temple in the forest of shadows.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Javascript",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-06T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-  {
-    id: 3,
-    title: "The Lost Artifact",
-    content:
-      "Recover the ancient artifact from the abandoned temple in the forest of shadows.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Cobol",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-06T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-  {
-    id: 4,
-    title: "The Lost Artifact",
-    content:
-      "Recover the ancient artifact from the abandoned temple in the forest of shadows.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Scratch",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-06T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-  {
-    id: 5,
-    title: "The Lost Artifact",
-    content:
-      "Recover the ancient artifact from the abandoned temple in the forest of shadows.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Cobol",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-06T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-  {
-    id: 6,
-    title: "The Lost Artifact",
-    content:
-      "Recover the ancient artifact from the abandoned temple in the forest of shadows.",
-    link: "https://github.com/DevAdventures-Project/frontend",
-    nbHelpers: 3,
-    category: "Cobol",
-    minimumRank: "Senior",
-    deadline: new Date("2025-03-06T12:11:38.801Z"),
-    createdAt: new Date("2025-03-06T12:11:38.801Z"),
-    authorId: "Roger",
-  },
-];
+import { getQuests } from "../lib/api/getQuests";
+import { joinQuest } from "../lib/api/joinQuest";
 
 function QuestDialog() {
   const [selectedQuest, setSelectedQuest] = useState<(typeof quests)[0] | null>(
     null,
   );
+  const [quests, setQuests] = useState<Quest[]>([]);
+
+  useEffect(() => {
+    async function fetchQuests() {
+      const fetchedQuests = await getQuests();
+      setQuests(fetchedQuests);
+    }
+
+    fetchQuests();
+  }, []);
 
   return (
     <Dialog>
@@ -150,7 +80,7 @@ function QuestDialog() {
           </div>
 
           {/* Right panel - Quest details */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden w-[800px]">
             {selectedQuest ? (
               <ScrollArea className="h-[600px]">
                 <div className="p-6">
@@ -234,7 +164,11 @@ function QuestDialog() {
                     </div>
 
                     <div className="my-6 flex items-center justify-center">
-                      <Button className="w-[50%]" variant="success">
+                      <Button
+                        className="w-[50%]"
+                        variant="success"
+                        onClick={() => joinQuest(selectedQuest.id)}
+                      >
                         Accepter la quête
                       </Button>
                     </div>
