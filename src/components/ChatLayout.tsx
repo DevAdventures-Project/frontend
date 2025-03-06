@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import GameChat from "./GameChat";
 import ChatToggleButton from "./ui/ChatToggle";
 
-export default function ChatLayout() {
+export default function ChatLayout({ room }) {
   const [chatVisible, setChatVisible] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const wsClient = useContext(WebSocketContext);
@@ -102,7 +102,7 @@ export default function ChatLayout() {
       <GameChat
         isVisible={chatVisible}
         currentUser={currentUser}
-        room="General"
+        room={room}
         onSendMessage={handleSendMessage}
         messages={messages}
       />
