@@ -55,8 +55,6 @@ export default function GameChat({
   };
 
   const handleRoomChange = (roomId: number) => {
-    console.log("Switching to room", roomId);
-    console.log("Messages in room", messages[roomId]);
     setCurrentRoomId(roomId);
   };
 

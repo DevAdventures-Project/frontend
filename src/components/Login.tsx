@@ -48,8 +48,6 @@ const LoginPreview = (props: LoginProps) => {
     try {
       const success = await login(values.email, values.password);
 
-      console.log(success);
-
       localStorage.setItem("accessToken", success.accessToken);
       localStorage.setItem("userId", success.id.toString());
       localStorage.setItem("pseudo", success.pseudo);
@@ -61,7 +59,7 @@ const LoginPreview = (props: LoginProps) => {
     }
   }
 
-  return props.loggedIn ? (
+  return props.loggedIn ? null : (
     <div
       id="masker"
       className={"relative w-[1024px] h-[768px] overflow-hidden bg-black"}
@@ -129,7 +127,7 @@ const LoginPreview = (props: LoginProps) => {
         </Card>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default LoginPreview;

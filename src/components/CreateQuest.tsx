@@ -115,7 +115,7 @@ function CreateQuest() {
       try {
         setRepos(await fetchRepos());
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
     getRepos();
@@ -125,7 +125,7 @@ function CreateQuest() {
         const jiraProjects = await fetchJiraProjects();
         setJiraProjects(jiraProjects);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
     getJiraProjects();
@@ -154,7 +154,7 @@ function CreateQuest() {
         const issues = await fetchIssues(repoName);
         setIssues(issues);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
 
@@ -171,7 +171,7 @@ function CreateQuest() {
         const issues = await fetchJiraIssues(jiraProjectId);
         setJiraIssues(issues);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
 

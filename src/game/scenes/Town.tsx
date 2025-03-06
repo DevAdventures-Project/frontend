@@ -50,11 +50,12 @@ export class Town extends Scene implements MovableScene {
         />,
       ),
     );
+    this.add.dom(0, 0, reactToDom(<LoginLayout />));
+
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.add.dom(0, 0, reactToDom(<LoginLayout />));
 
     this.load.spritesheet(
       "player-idle",
@@ -164,8 +165,6 @@ export class Town extends Scene implements MovableScene {
     this.playerMovement = new Player(this);
 
     EventBus.emit("current-scene-ready", this);
-
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
   }
 
   showQuestList(): void {
