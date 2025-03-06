@@ -54,12 +54,12 @@ export default function App() {
       });
     };
 
-    const handleKeyUp = (event : KeyboardEvent) => {
+    const handleKeyUp = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
-    
+
       const scene = phaserRef.current.scene as Town;
       if (!scene || scene.scene.key !== "Town") return;
-      scene.player?.anims.play('idle');
+      scene.player?.anims.play("idle");
     };
 
     document.addEventListener("keydown", handleKeyDown);
