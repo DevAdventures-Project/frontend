@@ -1,4 +1,5 @@
 import CreateQuest from "@/components/CreateQuest";
+import QuestList from "@/components/QuestList";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
@@ -36,6 +37,7 @@ export class MainMenu extends Scene {
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
 
     this.add.dom(850, 50, reactToDom(<CreateQuest />));
+    this.add.dom(850, 100, reactToDom(<QuestList />));
 
     this.title = this.add
       .text(512, 460, "Main Menu", {
