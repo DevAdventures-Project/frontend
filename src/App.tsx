@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { MainMenu } from "./game/scenes/MainMenu";
+import { Town } from "./game/scenes/Town";
 
 export default function App() {
   // The sprite can only be moved in the MainMenu Scene
@@ -24,8 +25,8 @@ export default function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
   
-      const scene = phaserRef.current.scene as MainMenu;
-      if (!scene || scene.scene.key !== "MainMenu") return;
+      const scene = phaserRef.current.scene as Town;
+      if (!scene || scene.scene.key !== "Town") return;
   
       scene.movePlayer(({ x, y }) => {
         let newX = x;
