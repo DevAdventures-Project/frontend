@@ -1,3 +1,5 @@
+import Login from "@/components/Login";
+import MainMenuLayout from "@/components/MainMenuLayout";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
 

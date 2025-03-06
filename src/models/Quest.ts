@@ -8,5 +8,12 @@ export interface Quest {
   minimumRank: string;
   deadline: Date;
   createdAt: Date;
-  authorId: string;
+  author: {
+    id: number;
+    pseudo: string;
+  };
+  helpers: {
+    id: number;
+    pseudo: string;
+  }[];
 }
