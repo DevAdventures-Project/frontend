@@ -4,6 +4,11 @@ import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { type MovableScene, Player } from "../Player";
+import {
+  calculateOffsets,
+  getTileCoordinates,
+  getTileIndex,
+} from "./GridUtils";
 
 export class Dungeon extends Scene implements MovableScene {
   dungeon: GameObjects.Image;
@@ -19,6 +24,14 @@ export class Dungeon extends Scene implements MovableScene {
   private playerRadius = 10;
   playerMovement: Player;
 
+  // Propriétés de grille pour MovableScene
+  tileWidth = 12;
+  tileHeight = 12;
+
+  obstacles: number[] = [];
+  offsetX = 0;
+  offsetY = 0;
+
   constructor() {
     super("Dungeon");
   }
@@ -29,7 +42,6 @@ export class Dungeon extends Scene implements MovableScene {
       frameWidth: 64,
       frameHeight: 64,
     });
-
     this.load.spritesheet(
       "player-idle",
       "assets/npc/Knight/Idle/Idle-Sheet.png",
@@ -41,6 +53,21 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   create() {
+    // Optionnel : Calcul de l'offset pour centrer la grille dans 1024×768.
+    const mapWidthInTiles = 50;
+    const mapHeightInTiles = 30; // Par exemple
+    const { offsetX, offsetY } = calculateOffsets(
+      1024,
+      768,
+      mapWidthInTiles,
+      mapHeightInTiles,
+      this.tileWidth,
+      this.tileHeight,
+    );
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+
+    // Affichage du background (ici une image, pas de tilemap)
     this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "Dungeon", {
       fontFamily: "Arial Black",
@@ -51,14 +78,17 @@ export class Dungeon extends Scene implements MovableScene {
       align: "center",
     });
 
+    // Création du portail
     this.portal = this.add.image(590, 590, "portal");
     this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
+    // Création du joueur
     this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5);
     this.player.setDepth(2);
 
+    // Création des colliders
     this.portalCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
@@ -70,6 +100,7 @@ export class Dungeon extends Scene implements MovableScene {
       this.playerRadius,
     );
 
+    // Animations
     this.anims.create({
       key: "run",
       frames: this.anims.generateFrameNumbers("player-run", {
@@ -79,9 +110,7 @@ export class Dungeon extends Scene implements MovableScene {
       frameRate: 10,
       repeat: -1,
     });
-
     this.player.setOrigin(0.5, 1);
-
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player-idle", {
@@ -91,7 +120,6 @@ export class Dungeon extends Scene implements MovableScene {
       frameRate: 10,
       repeat: -1,
     });
-
     this.player.anims.play("idle");
 
     this.tweens.add({
@@ -103,8 +131,8 @@ export class Dungeon extends Scene implements MovableScene {
       ease: "Sine.easeInOut",
     });
 
+    // Initialisation du mouvement du joueur avec la logique de grid
     this.playerMovement = new Player(this);
-
     EventBus.emit("current-scene-ready", this);
   }
 
@@ -120,7 +148,6 @@ export class Dungeon extends Scene implements MovableScene {
       this.playerCollider,
       this.portalCollider,
     );
-
     if (isColliding && !this.isOverlapping) {
       this.isOverlapping = true;
       this.activatePortal();
@@ -141,7 +168,6 @@ export class Dungeon extends Scene implements MovableScene {
         this.changeScene();
       },
     });
-
     this.cameras.main.flash(500, 255, 255, 255);
   }
 
@@ -152,5 +178,33 @@ export class Dungeon extends Scene implements MovableScene {
 
   changeScene() {
     this.scene.start("Town");
+  }
+
+  // Implémente isPositionBlocked pour la grille Dungeon.
+  // Ici, on retourne toujours false si obstacles est vide.
+  isPositionBlocked(x: number, y: number): boolean {
+    if (this.obstacles.length === 0) {
+      return false;
+    }
+    const mapWidthInTiles = 50;
+    const { tileX, tileY } = getTileCoordinates(
+      x,
+      y,
+      this.tileWidth,
+      this.tileHeight,
+      this.offsetX,
+      this.offsetY,
+    );
+    // Vérifier les limites
+    if (
+      tileX < 0 ||
+      tileY < 0 ||
+      tileX >= mapWidthInTiles ||
+      tileY >= Math.floor(this.obstacles.length / mapWidthInTiles)
+    ) {
+      return true;
+    }
+    const index = tileY * mapWidthInTiles + tileX;
+    return this.obstacles[index] !== 0;
   }
 }
