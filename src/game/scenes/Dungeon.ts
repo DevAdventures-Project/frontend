@@ -7,6 +7,12 @@ export class Dungeon extends Scene {
   player: GameObjects.Sprite;
   map: Tilemaps.Tilemap;
   collisionLayer: Phaser.Tilemaps.TilemapLayer;
+  portal: GameObjects.Image;
+  private portalCollider: Phaser.Geom.Circle;
+  private playerCollider: Phaser.Geom.Circle;
+  private isOverlapping = false;
+  private portalRadius = 32;
+  private playerRadius = 16;
 
   constructor() {
     super("Dungeon");
@@ -26,6 +32,11 @@ export class Dungeon extends Scene {
         frameHeight: 32,
       },
     );
+
+    // Préchargement de l'image du portail si pas déjà chargé
+    if (!this.textures.exists("star")) {
+      this.load.image("star", "star.png");
+    }
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
@@ -37,36 +48,16 @@ export class Dungeon extends Scene {
   updatePositionPlayer(x: number, y: number) {
     if (this.player) {
       this.player.setPosition(x, y);
+      this.updatePlayerCollider();
+      this.checkPortalCollision();
     }
   }
 
   create() {
-    const map = this.make.tilemap({ key: "dungeon" });
-    // Add tileset
-    //  const tileset = this.map.addTilesetImage("dungeon", "dungeon");
-    //  if (!tileset) {
-    //    console.error("Tileset 'dungeon' not found in tilemap.");
-    //    return;
-    //  }
-
-    //  // Create collision layer
-    //  const collisionLayer = this.map.createLayer("Obstacles", tileset, 0, 0);
-    //  if (!collisionLayer) {
-    //    console.error("Layer 'Obstacles' not found in tilemap.");
-    //    return;
-    //  }
-    // this.collisionLayer.setCollisionByExclusion([-1], true);
-
-    // // Debug visualization (optional)
-    // const debugGraphics = this.add.graphics().setAlpha(0.7);
-    // this.collisionLayer.renderDebug(debugGraphics, {
-    //   tileColor: null,
-    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
-    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255)
-    // });
+    //const map = this.make.tilemap({ key: "dungeon" });
 
     this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
-    this.title = this.add.text(100, 100, "The Hub", {
+    this.title = this.add.text(100, 100, "Dungeon", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
@@ -75,19 +66,33 @@ export class Dungeon extends Scene {
       align: "center",
     });
 
-    // Create the player sprite
-    this.player = this.add.sprite(410, 390, "player-run");
-    this.player.setOrigin(0.5, 0.5); // Center the sprite's origin
+    this.portal = this.add.image(590, 590, "star");
+    this.portal.setScale(0.5);
+    this.portal.setDepth(1);
 
-    // Create the running animation
+    this.player = this.add.sprite(410, 390, "player-run");
+    this.player.setOrigin(0.5, 0.5);
+    this.player.setDepth(2);
+
+    this.portalCollider = new Phaser.Geom.Circle(
+      this.portal.x,
+      this.portal.y,
+      this.portalRadius,
+    );
+    this.playerCollider = new Phaser.Geom.Circle(
+      this.player.x,
+      this.player.y - this.player.height / 4,
+      this.playerRadius,
+    );
+
     this.anims.create({
       key: "run",
       frames: this.anims.generateFrameNumbers("player-run", {
         start: 0,
-        end: 5, // 6 frames (0 to 5)
+        end: 5,
       }),
-      frameRate: 10, // Frames per second
-      repeat: -1, // Loop indefinitely
+      frameRate: 10,
+      repeat: -1,
     });
 
     this.player.setOrigin(0.5, 1);
@@ -104,11 +109,59 @@ export class Dungeon extends Scene {
 
     this.player.anims.play("idle");
 
+    this.tweens.add({
+      targets: this.portal,
+      scale: 0.6,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+
     EventBus.emit("current-scene-ready", this);
   }
 
+  updatePlayerCollider() {
+    if (this.player && this.playerCollider) {
+      this.playerCollider.x = this.player.x;
+      this.playerCollider.y = this.player.y - this.player.height / 4;
+    }
+  }
+
+  checkPortalCollision() {
+    const isColliding = Phaser.Geom.Intersects.CircleToCircle(
+      this.playerCollider,
+      this.portalCollider,
+    );
+
+    if (isColliding && !this.isOverlapping) {
+      this.isOverlapping = true;
+      this.activatePortal();
+    } else if (!isColliding && this.isOverlapping) {
+      this.isOverlapping = false;
+    }
+  }
+
+  activatePortal() {
+    this.tweens.add({
+      targets: this.portal,
+      scale: 1.5,
+      alpha: 0,
+      duration: 500,
+      onComplete: () => {
+        this.changeScene();
+      },
+    });
+
+    this.cameras.main.flash(500, 255, 255, 255);
+  }
+
+  update() {
+    this.updatePlayerCollider();
+    this.checkPortalCollision();
+  }
+
   changeScene() {
-    this.scene.start("MainMenu");
-    this.physics.add.image(400, 300, "logo");
+    this.scene.start("Town");
   }
 }
