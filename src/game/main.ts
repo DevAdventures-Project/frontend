@@ -23,6 +23,9 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
+  dom: {
+    createContainer: true,
+  },
 };
 
 const StartGame = (parent: string) => {
