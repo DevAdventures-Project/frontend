@@ -4,6 +4,7 @@ import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
 
 export class MainMenu extends Scene {
+  player: GameObjects.Image;
   background: GameObjects.Image;
   logo: GameObjects.Image;
   title: GameObjects.Text;
@@ -11,6 +12,22 @@ export class MainMenu extends Scene {
 
   constructor() {
     super("MainMenu");
+  }
+
+  preload() {
+    this.load.image("player", "/assets/player.png");
+  }
+
+  movePlayer(callback: (pos: { x: number; y: number }) => void) {
+    if (this.player) {
+      callback({ x: this.player.x, y: this.player.y });
+    }
+  }
+
+  updatePositionPlayer(x: number, y: number) {
+    if (this.player) {
+      this.player.setPosition(x, y);
+    }
   }
 
   create() {
@@ -32,6 +49,8 @@ export class MainMenu extends Scene {
       })
       .setOrigin(0.5)
       .setDepth(100);
+
+    this.player = this.add.image(300, 168, "player");
 
     EventBus.emit("current-scene-ready", this);
   }
