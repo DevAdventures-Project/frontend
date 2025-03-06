@@ -4,6 +4,7 @@ import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
 
 export default function App() {
+  const speedMovement = 10;
   // The sprite can only be moved in the MainMenu Scene
   const [canMoveSprite, setCanMoveSprite] = useState(true);
 
@@ -28,7 +29,7 @@ export default function App() {
       const scene = phaserRef.current.scene as Town;
       if (!scene || scene.scene.key !== "Town") return;
 
-      scene.player?.play("run");
+      scene.player?.anims.play("run", true);
 
       scene.movePlayer(({ x, y }) => {
         let newX = x;
@@ -36,16 +37,16 @@ export default function App() {
 
         switch (event.key) {
           case "ArrowUp":
-            newY -= 10; // Move up
+            newY -= speedMovement; // Move up
             break;
           case "ArrowDown":
-            newY += 10; // Move down
+            newY += speedMovement; // Move down
             break;
           case "ArrowLeft":
-            newX -= 10; // Move left
+            newX -= speedMovement; // Move left
             break;
           case "ArrowRight":
-            newX += 10; // Move right
+            newX += speedMovement; // Move right
             break;
         }
 
@@ -55,6 +56,7 @@ export default function App() {
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      console.log("handleKeyUp");
       if (!phaserRef.current) return;
 
       const scene = phaserRef.current.scene as Town;

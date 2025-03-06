@@ -56,7 +56,7 @@ export class Town extends Scene {
     });
 
     // Create the player sprite
-    this.player = this.add.sprite(410, 378, "player-idle");
+    this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5); // Center the sprite's origin
 
     // Create the running animation
@@ -70,6 +70,8 @@ export class Town extends Scene {
       repeat: -1, // Loop indefinitely
     });
 
+    this.player.setOrigin(0.5, 1); 
+
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player-idle", {
@@ -80,8 +82,7 @@ export class Town extends Scene {
       repeat: -1,
     });
 
-    // Play the running animation
-    //this.player.play("run");
+    this.player.anims.play("idle");
 
     EventBus.emit("current-scene-ready", this);
   }
