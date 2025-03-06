@@ -2,8 +2,9 @@ import ChatLayout from "@/components/ChatLayout";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
+import { type MovableScene, Player } from "../Player";
 
-export class Town extends Scene {
+export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
@@ -15,6 +16,7 @@ export class Town extends Scene {
   private isOverlapping = false;
   private portalRadius = 20;
   private playerRadius = 10;
+  playerMovement: Player;
 
   constructor() {
     super("Town");
@@ -46,21 +48,6 @@ export class Town extends Scene {
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
-  }
-
-  movePlayer(callback: (pos: { x: number; y: number }) => void) {
-    if (this.player) {
-      callback({ x: this.player.x, y: this.player.y });
-    }
-  }
-
-  updatePositionPlayer(x: number, y: number) {
-    if (this.player) {
-      this.player.setPosition(x, y);
-      this.updatePlayerCollider();
-      this.checkPortalCollision();
-      this.checkNpcCollision();
-    }
   }
 
   create() {
@@ -141,6 +128,8 @@ export class Town extends Scene {
       ease: "Sine.easeInOut",
     });
 
+    this.playerMovement = new Player(this);
+
     EventBus.emit("current-scene-ready", this);
   }
 
@@ -150,6 +139,7 @@ export class Town extends Scene {
       this.playerCollider.y = this.player.y - this.player.height / 2;
     }
   }
+
   checkNpcCollision() {
     const isColliding = Phaser.Geom.Intersects.CircleToCircle(
       this.playerCollider,
