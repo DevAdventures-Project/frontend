@@ -25,7 +25,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { EventBus } from "@/game/EventBus";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -46,19 +48,38 @@ const formSchema = z.object({
 });
 
 function CreateQuest() {
+  const [isOpen, setIsOpen] = useState(true);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    handleOpenChange(false);
   }
 
+  useEffect(() => {
+    const handleCloseCreateQuest = () => {
+      setIsOpen(false);
+    };
+
+    EventBus.on("close-create-quest", handleCloseCreateQuest);
+
+    return () => {
+      EventBus.off("close-create-quest", handleCloseCreateQuest);
+    };
+  }, []);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      EventBus.emit("quest-ui-closed");
+      form.reset();
+    }
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default">Ajouter une quête</Button>
-      </DialogTrigger>
+    <Dialog onOpenChange={handleOpenChange} open={isOpen}>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader className="text-black">
           <DialogTitle>Création de quête</DialogTitle>
@@ -188,7 +209,16 @@ function CreateQuest() {
                 )}
               />
             </ScrollArea>
-            <Button type="submit">Créer</Button>
+            <div className="flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
+                Annuler
+              </Button>
+              <Button type="submit">Créer</Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

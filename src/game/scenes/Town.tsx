@@ -1,5 +1,7 @@
 import ChatLayout from "@/components/ChatLayout";
 import { socket } from "@/contexts/WebSocketContext";
+import CreateQuest from "@/components/CreateQuest";
+import QuestList from "@/components/QuestList";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
@@ -22,6 +24,8 @@ export class Town extends Scene implements MovableScene {
   playerMovement: Player;
   dialogManager: DialogManager;
   wizardNpc: Npc;
+  private questListDom: Phaser.GameObjects.DOMElement | null = null;
+  private createQuestDom: Phaser.GameObjects.DOMElement | null = null;
 
   constructor() {
     super("Town");
@@ -107,7 +111,7 @@ export class Town extends Scene implements MovableScene {
       },
     );
 
-    const npcName = "Wizard";
+    const npcName = "M. Sananes";
     this.wizardNpc = new Npc(this, {
       name: npcName,
       x: 670,
@@ -118,31 +122,19 @@ export class Town extends Scene implements MovableScene {
       dialogs: {
         npcName: npcName,
         messages: [
-          "Greetings, traveler! I am the guardian of this town.",
-          "Beyond that portal lies a dangerous dungeon filled with treasures and perils.",
-          "Are you prepared to face what awaits you there?",
+          "Salut je suis le goat du C, tu veux voir ou créer une quête de cette zone ?",
         ],
         responses: [
           {
-            text: "Yes, I'm ready for the challenge!",
-            next: {
-              npcName: npcName,
-              messages: [
-                "Brave soul! May fortune favor you in your journey.",
-                "Remember, the key to survival is not just strength, but wisdom.",
-                "Take this advice: The shadows hide more than just monsters.",
-              ],
+            text: "Voir les quêtes",
+            action: () => {
+              this.showQuestList();
             },
           },
           {
-            text: "No, I'm not ready yet.",
-            next: {
-              npcName: npcName,
-              messages: [
-                "A prudent decision. It's better to be prepared than to rush into danger.",
-                "Take your time to gather equipment and knowledge before you venture forth.",
-                "I'll be here when you're ready.",
-              ],
+            text: "Créer une quête",
+            action: () => {
+              this.showCreateQuest();
             },
           },
         ],
@@ -154,6 +146,32 @@ export class Town extends Scene implements MovableScene {
     this.playerMovement = new Player(this);
 
     EventBus.emit("current-scene-ready", this);
+  }
+
+  showQuestList(): void {
+    this.cleanupQuestUIs();
+
+    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom.setDepth(1000);
+  }
+
+  showCreateQuest(): void {
+    this.cleanupQuestUIs();
+
+    this.createQuestDom = this.add.dom(850, 50, reactToDom(<CreateQuest />));
+    this.createQuestDom.setDepth(1000);
+  }
+
+  private cleanupQuestUIs(): void {
+    if (this.questListDom) {
+      this.questListDom.destroy();
+      this.questListDom = null;
+    }
+
+    if (this.createQuestDom) {
+      this.createQuestDom.destroy();
+      this.createQuestDom = null;
+    }
   }
 
   createAnimations(): void {
@@ -250,6 +268,7 @@ export class Town extends Scene implements MovableScene {
   }
 
   changeScene() {
+    this.cleanupQuestUIs();
     this.scene.start("Dungeon");
   }
 }

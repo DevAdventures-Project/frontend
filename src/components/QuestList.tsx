@@ -1,24 +1,23 @@
 "use client";
 
-import type React from "react";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { calculateRemainingTime } from "@/lib/calculateRemainingTime";
 import type { Quest } from "@/models/Quest";
 import { Clock, MapPin, Sword, Trophy, User } from "lucide-react";
+import type React from "react";
 import { useEffect, useState } from "react";
+import { EventBus } from "../game/EventBus";
 import { getQuests } from "../lib/api/getQuests";
 import { joinQuest } from "../lib/api/joinQuest";
 
-function QuestDialog() {
-  const [selectedQuest, setSelectedQuest] = useState<(typeof quests)[0] | null>(
-    null,
-  );
+function QuestList() {
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     async function fetchQuests() {
@@ -27,13 +26,27 @@ function QuestDialog() {
     }
 
     fetchQuests();
+
+    const handleCloseQuestList = () => {
+      setIsOpen(false);
+    };
+
+    EventBus.on("close-quest-list", handleCloseQuestList);
+
+    return () => {
+      EventBus.off("close-quest-list", handleCloseQuestList);
+    };
   }, []);
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      EventBus.emit("quest-ui-closed");
+    }
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default">Voir les quêtes</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[1200px] text-black">
         <div className="mx-auto flex max-w-5xl flex-col overflow-hidden rounded-xl border bg-background shadow-lg md:flex-row">
           {/* Left sidebar - Quest list */}
@@ -167,7 +180,10 @@ function QuestDialog() {
                       <Button
                         className="w-[50%]"
                         variant="success"
-                        onClick={() => joinQuest(selectedQuest.id)}
+                        onClick={() => {
+                          joinQuest(selectedQuest.id);
+                          handleOpenChange(false);
+                        }}
                       >
                         Accepter la quête
                       </Button>
@@ -179,7 +195,7 @@ function QuestDialog() {
               <div className="flex h-full items-center justify-center w-[800px]">
                 <div className="text-center">
                   <h3 className="text-lg font-medium">
-                    Aucune quête sélectionnez
+                    Aucune quête sélectionnée
                   </h3>
                   <p className="text-muted-foreground">
                     Sélectionnez une quête pour avoir plus d'informations
@@ -194,4 +210,4 @@ function QuestDialog() {
   );
 }
 
-export default QuestDialog;
+export default QuestList;
