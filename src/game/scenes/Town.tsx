@@ -7,8 +7,10 @@ export class Town extends Scene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
+  npc: GameObjects.Sprite;
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
+  private npcCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
   private portalRadius = 30;
@@ -33,8 +35,15 @@ export class Town extends Scene {
         frameHeight: 32,
       },
     );
+    this.load.spritesheet(
+      "npc-idle",
+      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
 
-    this.load.image("star", "star.png");
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
   }
@@ -66,11 +75,18 @@ export class Town extends Scene {
 
     this.portal = this.add.image(730, 352, "star");
     this.portal.setScale(0.5);
+    this.npc = this.add.sprite(670, 440, "npc-idle");
+    this.npc.setOrigin(0.5, 1);
+    this.npc.anims.play("idle");
     this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5);
 
-    // Initialiser les colliders
     this.portalCollider = new Phaser.Geom.Circle(
+      this.portal.x,
+      this.portal.y,
+      this.portalRadius,
+    );
+    this.npcCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
       this.portalRadius,
@@ -103,7 +119,17 @@ export class Town extends Scene {
       repeat: -1,
     });
 
-    this.player.anims.play("idle");
+    this.anims.create({
+      key: "npc-idle",
+      frames: this.anims.generateFrameNumbers("npc-idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.npc.anims.play("npc-idle");
 
     this.tweens.add({
       targets: this.portal,

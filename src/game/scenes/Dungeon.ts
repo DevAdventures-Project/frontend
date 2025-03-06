@@ -11,8 +11,8 @@ export class Dungeon extends Scene {
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
-  private portalRadius = 32;
-  private playerRadius = 16;
+  private portalRadius = 30;
+  private playerRadius = 10;
 
   constructor() {
     super("Dungeon");
@@ -32,11 +32,6 @@ export class Dungeon extends Scene {
         frameHeight: 32,
       },
     );
-
-    // Préchargement de l'image du portail si pas déjà chargé
-    if (!this.textures.exists("star")) {
-      this.load.image("star", "star.png");
-    }
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
