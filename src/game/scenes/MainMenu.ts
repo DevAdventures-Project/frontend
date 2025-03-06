@@ -14,7 +14,7 @@ export class MainMenu extends Scene {
   }
 
   preload() {
-    this.load.image("player", "/assets/player.jpg");
+    this.load.image("player", "/assets/player.png");
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
