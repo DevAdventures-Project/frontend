@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { WebSocketContext, socket } from "./contexts/WebSocketContext";
+import { EventBus } from "./game/EventBus";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
+import type { Dungeon } from "./game/scenes/Dungeon";
 import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
 
 export default function App() {
-  const speedMovement = 10;
-  // The sprite can only be moved in the MainMenu Scene
   const [canMoveSprite, setCanMoveSprite] = useState(true);
-
-  //  References to the PhaserGame component (game and scene are exposed)
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
+  const walkableScenes = ["Town", "Dungeon"];
 
   const changeScene = () => {
     if (phaserRef.current) {
@@ -23,45 +23,65 @@ export default function App() {
   };
 
   useEffect(() => {
+    const handlePositionUpdate = (position: { x: number; y: number }) => {
+      setSpritePosition(position);
+    };
+
+    EventBus.on("player-position-updated", handlePositionUpdate);
+
+    return () => {
+      EventBus.off("player-position-updated", handlePositionUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
 
-      const scene = phaserRef.current.scene as Town;
-      if (!scene || scene.scene.key !== "Town") return;
+      let currentScene: Town | Dungeon | null = null;
 
-      scene.player?.anims.play("run", true);
+      if (phaserRef.current.scene) {
+        const sceneKey = phaserRef.current.scene.scene.key;
+        if (!walkableScenes.includes(sceneKey)) return;
 
-      scene.movePlayer(({ x, y }) => {
-        let newX = x;
-        let newY = y;
+        currentScene = phaserRef.current.scene as Town | Dungeon;
+      }
 
-        switch (event.key) {
-          case "ArrowUp":
-            newY -= speedMovement; // Move up
-            break;
-          case "ArrowDown":
-            newY += speedMovement; // Move down
-            break;
-          case "ArrowLeft":
-            newX -= speedMovement; // Move left
-            break;
-          case "ArrowRight":
-            newX += speedMovement; // Move right
-            break;
-        }
+      if (!currentScene || !currentScene.playerMovement) return;
 
-        scene.updatePositionPlayer(newX, newY); // call method of mainMenu scene that move player
-        setSpritePosition({ x: newX, y: newY });
-      });
+      currentScene.playerMovement.startRunAnimation();
+
+      switch (event.key) {
+        case "ArrowUp":
+          currentScene.playerMovement.moveUp();
+          break;
+        case "ArrowDown":
+          currentScene.playerMovement.moveDown();
+          break;
+        case "ArrowLeft":
+          currentScene.playerMovement.moveLeft();
+          break;
+        case "ArrowRight":
+          currentScene.playerMovement.moveRight();
+          break;
+      }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      console.log("handleKeyUp");
       if (!phaserRef.current) return;
 
-      const scene = phaserRef.current.scene as Town;
-      if (!scene || scene.scene.key !== "Town") return;
-      scene.player?.anims.play("idle");
+      let currentScene: Town | Dungeon | null = null;
+
+      if (phaserRef.current.scene) {
+        const sceneKey = phaserRef.current.scene.scene.key;
+        if (!walkableScenes.includes(sceneKey)) return;
+
+        currentScene = phaserRef.current.scene as Town | Dungeon;
+      }
+
+      if (!currentScene || !currentScene.playerMovement) return;
+
+      currentScene.playerMovement.startIdleAnimation();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -73,43 +93,31 @@ export default function App() {
     };
   }, []);
 
-  /*const moveSprite = () => {
-    if (phaserRef.current) {
-      const scene = phaserRef.current.scene as MainMenu;
-
-      if (scene && scene.scene.key === "MainMenu") {
-        // Get the update logo position
-        scene.moveLogo(({ x, y }) => {
-          setSpritePosition({ x, y });
-        });
-      }
-    }
-  };*/
-
-  // Event emitted from the PhaserGame component
   const currentScene = (scene: Phaser.Scene) => {
     setCanMoveSprite(scene.scene.key !== "MainMenu");
   };
 
   return (
     <div id="app">
-      <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-      <div>
+      <WebSocketContext.Provider value={socket}>
+        <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
         <div>
-          <button className="button" onClick={changeScene} type="button">
-            Change Scene
-          </button>
+          <div>
+            <button className="button" onClick={changeScene} type="button">
+              Change Scene
+            </button>
+          </div>
+          <div>
+            <button disabled={canMoveSprite} className="button" type="button">
+              Toggle Movement
+            </button>
+          </div>
+          <div className="spritePosition">
+            Sprite Position:
+            <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
+          </div>
         </div>
-        <div>
-          <button disabled={canMoveSprite} className="button" type="button">
-            Toggle Movement
-          </button>
-        </div>
-        <div className="spritePosition">
-          Sprite Position:
-          <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-        </div>
-      </div>
+      </WebSocketContext.Provider>
     </div>
   );
 }
