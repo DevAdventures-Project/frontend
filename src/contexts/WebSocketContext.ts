@@ -1,7 +1,7 @@
 import { createContext } from "react";
 import { io } from "socket.io-client";
 
-export const socket = io(process.env.NEXT_PUBLIC_API_URL, {
+export const socket = io("https://hackaton.jayllyz.fr/", {
   transports: ["websocket"],
   autoConnect: true,
 });

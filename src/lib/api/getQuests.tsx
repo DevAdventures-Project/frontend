@@ -3,8 +3,7 @@
 import type { Quest } from "@/models/Quest";
 
 export async function getQuests(userId: number): Promise<Quest[]> {
-  const API_URL = process.env.API_URL;
-  console.log("API_URL", API_URL);
+  const API_URL = "https://hackaton.jayllyz.fr/";
 
   const response = await fetch(`${API_URL}/quests`, {
     method: "GET",

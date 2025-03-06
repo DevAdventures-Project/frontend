@@ -1,12 +1,10 @@
 "use server";
 
-import jwt from "jsonwebtoken";
-
 export async function login(
   email: string,
   password: string,
 ): Promise<{ id: number; pseudo: string; accessToken: string }> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = "https://hackaton.jayllyz.fr/";
 
   const responseLogin = await fetch(`${API_URL}/auth/login`, {
     method: "POST",

@@ -1,9 +1,7 @@
 "use server";
 
-import type { Quest } from "@/models/Quest";
-
 export async function deleteQuest(questId: number): Promise<boolean> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = "https://hackaton.jayllyz.fr/";
 
   const response = await fetch(`${API_URL}/quests/${questId}`, {
     method: "DELETE",

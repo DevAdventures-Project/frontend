@@ -1,12 +1,10 @@
 "use server";
 
-import type { Quest } from "@/models/Quest";
-
 export async function joinQuest(
   questId: number,
   token: string,
 ): Promise<boolean> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = "https://hackaton.jayllyz.fr/";
 
   const response = await fetch(`${API_URL}/quests/${questId}/register`, {
     method: "POST",
