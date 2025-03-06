@@ -1,7 +1,7 @@
 import type { QuestCreate } from "@/models/QuestCreate";
 
 export async function createQuest(questData: QuestCreate) {
-  const apiUrl: string = process.env.NEXT_PUBLIC_API_URL || "";
+  const apiUrl = process.env.API_URL;
 
   try {
     const response = await fetch(`${apiUrl}/quests`, {
