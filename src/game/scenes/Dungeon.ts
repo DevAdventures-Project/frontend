@@ -47,8 +47,8 @@ export class Dungeon extends Scene implements MovableScene {
       align: "center",
     });
 
-    this.portal = this.add.image(590, 590, "star");
-    this.portal.setScale(0.5);
+    this.portal = this.add.image(590, 590, "portal");
+    this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
     this.player = this.add.sprite(410, 390, "player-run");
@@ -92,7 +92,7 @@ export class Dungeon extends Scene implements MovableScene {
 
     this.tweens.add({
       targets: this.portal,
-      scale: 0.6,
+      scale: 0.1,
       duration: 1000,
       yoyo: true,
       repeat: -1,
@@ -128,7 +128,7 @@ export class Dungeon extends Scene implements MovableScene {
   activatePortal() {
     this.tweens.add({
       targets: this.portal,
-      scale: 1.5,
+      scale: 0.2,
       alpha: 0,
       duration: 500,
       onComplete: () => {

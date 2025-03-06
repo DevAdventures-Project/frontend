@@ -1,4 +1,5 @@
 import type { GameObjects, Scene } from "phaser";
+import { DialogManager } from "./DialogManager";
 import { EventBus } from "./EventBus";
 
 export interface MovableScene {
@@ -12,11 +13,22 @@ export class Player {
   private scene: Scene & MovableScene;
   private speedMovement: number;
   private playerPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private isDialogActive = false;
+  private interactionKey: Phaser.Input.Keyboard.Key;
 
   constructor(scene: Scene & MovableScene, speedMovement = 10) {
     this.scene = scene;
     this.speedMovement = speedMovement;
     this.initializePosition();
+
+    if (scene.input.keyboard) {
+      this.interactionKey = scene.input.keyboard.addKey(
+        Phaser.Input.Keyboard.KeyCodes.E,
+      );
+    }
+
+    EventBus.on("dialog-started", this.onDialogStarted, this);
+    EventBus.on("dialog-ended", this.onDialogEnded, this);
   }
 
   private initializePosition(): void {
@@ -33,6 +45,7 @@ export class Player {
   }
 
   public moveUp(): void {
+    if (this.isDialogActive) return;
     this.updatePosition(
       this.playerPosition.x,
       this.playerPosition.y - this.speedMovement,
@@ -40,6 +53,7 @@ export class Player {
   }
 
   public moveDown(): void {
+    if (this.isDialogActive) return;
     this.updatePosition(
       this.playerPosition.x,
       this.playerPosition.y + this.speedMovement,
@@ -47,6 +61,7 @@ export class Player {
   }
 
   public moveLeft(): void {
+    if (this.isDialogActive) return;
     this.updatePosition(
       this.playerPosition.x - this.speedMovement,
       this.playerPosition.y,
@@ -57,6 +72,7 @@ export class Player {
   }
 
   public moveRight(): void {
+    if (this.isDialogActive) return;
     this.updatePosition(
       this.playerPosition.x + this.speedMovement,
       this.playerPosition.y,
@@ -67,6 +83,7 @@ export class Player {
   }
 
   public startRunAnimation(): void {
+    if (this.isDialogActive) return;
     if (this.scene.player) {
       this.scene.player.anims.play("run", true);
     }
@@ -79,7 +96,7 @@ export class Player {
   }
 
   public updatePosition(x: number, y: number): void {
-    if (!this.scene.player) return;
+    if (!this.scene.player || this.isDialogActive) return;
 
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
@@ -95,5 +112,30 @@ export class Player {
 
   public setPosition(x: number, y: number): void {
     this.updatePosition(x, y);
+  }
+
+  public update(): void {
+    if (Phaser.Input.Keyboard.JustDown(this.interactionKey)) {
+      this.tryInteract();
+    }
+  }
+
+  private tryInteract(): void {
+    if (this.isDialogActive) return;
+
+    EventBus.emit("player-interact", this.playerPosition);
+  }
+
+  private onDialogStarted(npcName: string): void {
+    this.isDialogActive = true;
+    this.startIdleAnimation();
+  }
+
+  private onDialogEnded(): void {
+    this.isDialogActive = false;
+  }
+
+  public canMove(): boolean {
+    return !this.isDialogActive;
   }
 }
