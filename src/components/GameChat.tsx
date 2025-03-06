@@ -107,7 +107,7 @@ export default function GameChat({
       <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
         {messages.map((message) => (
           <div
-            key={message.id}
+            key={message.createdAt}
             className={`flex flex-col ${message.author.id === currentUser.id ? "items-end" : "items-start"}`}
           >
             <div
