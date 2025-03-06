@@ -22,7 +22,7 @@ export class Player {
 
     if (scene.input.keyboard) {
       this.interactionKey = scene.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.E,
+        Phaser.Input.Keyboard.KeyCodes.MINUS,
       );
     }
 
@@ -128,7 +128,7 @@ export class Player {
     EventBus.emit("player-interact", this.playerPosition);
   }
 
-  private onDialogStarted(npcName: string): void {
+  private onDialogStarted(): void {
     this.isDialogActive = true;
     this.startIdleAnimation();
   }
