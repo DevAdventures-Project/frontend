@@ -1,3 +1,6 @@
+import ChatLayout from "@/components/ChatLayout";
+import { socket } from "@/contexts/WebSocketContext";
+import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { type MovableScene, Player } from "../Player";
@@ -21,6 +24,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   preload() {
+    this.add.dom(0, 0, reactToDom(<ChatLayout room="Dungeon" />));
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -47,8 +51,8 @@ export class Dungeon extends Scene implements MovableScene {
       align: "center",
     });
 
-    this.portal = this.add.image(590, 590, "star");
-    this.portal.setScale(0.5);
+    this.portal = this.add.image(590, 590, "portal");
+    this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
     this.player = this.add.sprite(410, 390, "player-run");
@@ -92,7 +96,7 @@ export class Dungeon extends Scene implements MovableScene {
 
     this.tweens.add({
       targets: this.portal,
-      scale: 0.6,
+      scale: 0.1,
       duration: 1000,
       yoyo: true,
       repeat: -1,
@@ -126,9 +130,11 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   activatePortal() {
+    socket.emit("leaveRooms");
+    socket.emit("joinRoom", "HUB");
     this.tweens.add({
       targets: this.portal,
-      scale: 1.5,
+      scale: 0.2,
       alpha: 0,
       duration: 500,
       onComplete: () => {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { WebSocketContext, socket } from "./contexts/WebSocketContext";
 import { EventBus } from "./game/EventBus";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { Dungeon } from "./game/scenes/Dungeon";
@@ -98,23 +99,25 @@ export default function App() {
 
   return (
     <div id="app">
-      <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-      <div>
+      <WebSocketContext.Provider value={socket}>
+        <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
         <div>
-          <button className="button" onClick={changeScene} type="button">
-            Change Scene
-          </button>
+          <div>
+            <button className="button" onClick={changeScene} type="button">
+              Change Scene
+            </button>
+          </div>
+          <div>
+            <button disabled={canMoveSprite} className="button" type="button">
+              Toggle Movement
+            </button>
+          </div>
+          <div className="spritePosition">
+            Sprite Position:
+            <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
+          </div>
         </div>
-        <div>
-          <button disabled={canMoveSprite} className="button" type="button">
-            Toggle Movement
-          </button>
-        </div>
-        <div className="spritePosition">
-          Sprite Position:
-          <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-        </div>
-      </div>
+      </WebSocketContext.Provider>
     </div>
   );
 }
