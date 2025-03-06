@@ -1,7 +1,6 @@
 import { type GameObjects, Scene } from "phaser";
-import ReactDOM from "react-dom/client";
 import { EventBus } from "../EventBus";
-import Test from "@/components/Test";
+import TestDialog from "@/components/testDialog";
 import { reactToDom } from "@/lib/reactToDom";
 
 export class MainMenu extends Scene {
@@ -20,7 +19,7 @@ export class MainMenu extends Scene {
 
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
 
-    this.add.dom(24, 55, reactToDom(<Test />));
+    this.add.dom(850, 50, reactToDom(<TestDialog />));
 
     this.title = this.add
       .text(512, 460, "Main Menu", {
