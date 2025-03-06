@@ -13,7 +13,6 @@ export class Town extends Scene {
   }
 
   preload() {
-
     console.log("Town preload");
 
     this.add.dom(0, 0, reactToDom(<ChatLayout />));
