@@ -80,7 +80,11 @@ function CreateQuest() {
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={isOpen}>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent
+        className="sm:max-w-[800px]"
+        showCloseButton
+        backgroundTransparent={false}
+      >
         <DialogHeader className="text-black">
           <DialogTitle>Création de quête</DialogTitle>
         </DialogHeader>
