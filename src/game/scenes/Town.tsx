@@ -1,6 +1,7 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import QuestList from "@/components/QuestList";
+import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
@@ -31,7 +32,7 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout />));
+    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -241,7 +242,8 @@ export class Town extends Scene implements MovableScene {
 
   activatePortal() {
     if (this.dialogManager.isActive()) return;
-
+    socket.emit("leaveRooms");
+    socket.emit("joinRoom", "MAP1");
     this.tweens.add({
       targets: this.portal,
       scale: 0.2,
