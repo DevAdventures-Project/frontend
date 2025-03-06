@@ -1,7 +1,7 @@
-import { type GameObjects, Scene } from "phaser";
-import { EventBus } from "../EventBus";
 import Login from "@/components/Login";
 import MainMenuLayout from "@/components/MainMenuLayout";
+import { type GameObjects, Scene } from "phaser";
+import { EventBus } from "../EventBus";
 
 export class MainMenu extends Scene {
   player: GameObjects.Image;
