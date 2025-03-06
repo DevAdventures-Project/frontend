@@ -1,4 +1,4 @@
-import MainMenuLayout from "@/components/MainMenuLayout";
+import LoginLayout from "@/components/LoginLayout";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
@@ -35,7 +35,7 @@ export class MainMenu extends Scene {
 
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
 
-    this.add.dom(0, 0, reactToDom(<MainMenuLayout />));
+    this.add.dom(0, 0, reactToDom(<LoginLayout />));
 
     this.title = this.add
       .text(512, 460, "Main Menu", {

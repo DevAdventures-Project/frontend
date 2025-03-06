@@ -8,6 +8,8 @@ import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
+import LoginLayout from "@/components/LoginLayout";
+import type { UserChat } from "@/models/User";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
@@ -32,11 +34,27 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <ChatLayout
+          user={
+            {
+              id: localStorage.getItem("userId")
+                ? Number.parseInt(localStorage.getItem("userId") as string)
+                : null,
+              pseudo: localStorage.getItem("pseudo"),
+            } as UserChat
+          }
+        />,
+      ),
+    );
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
     });
+    this.add.dom(0, 0, reactToDom(<LoginLayout />));
 
     this.load.spritesheet(
       "player-idle",

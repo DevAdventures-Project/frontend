@@ -2,7 +2,7 @@
 
 import Login from "@/components/Login";
 
-export default function MainMenuLayout() {
+export default function LoginLayout() {
   if (localStorage.getItem("accessToken")) {
     return <Login loggedIn={true} />;
   }
