@@ -7,11 +7,13 @@ export class Town extends Scene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
+  npc: GameObjects.Sprite;
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
+  private npcCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
-  private portalRadius = 30;
+  private portalRadius = 20;
   private playerRadius = 10;
 
   constructor() {
@@ -33,8 +35,15 @@ export class Town extends Scene {
         frameHeight: 32,
       },
     );
+    this.load.spritesheet(
+      "npc-idle",
+      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
 
-    this.load.image("star", "star.png");
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
   }
@@ -50,6 +59,7 @@ export class Town extends Scene {
       this.player.setPosition(x, y);
       this.updatePlayerCollider();
       this.checkPortalCollision();
+      this.checkNpcCollision();
     }
   }
 
@@ -66,13 +76,20 @@ export class Town extends Scene {
 
     this.portal = this.add.image(730, 352, "star");
     this.portal.setScale(0.5);
+    this.npc = this.add.sprite(670, 440, "npc-idle");
+    this.npc.setOrigin(0.5, 1);
+    this.npc.anims.play("idle");
     this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5);
 
-    // Initialiser les colliders
     this.portalCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
+      this.portalRadius,
+    );
+    this.npcCollider = new Phaser.Geom.Circle(
+      this.npc.x,
+      this.npc.y,
       this.portalRadius,
     );
     this.playerCollider = new Phaser.Geom.Circle(
@@ -103,7 +120,17 @@ export class Town extends Scene {
       repeat: -1,
     });
 
-    this.player.anims.play("idle");
+    this.anims.create({
+      key: "npc-idle",
+      frames: this.anims.generateFrameNumbers("npc-idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.npc.anims.play("npc-idle");
 
     this.tweens.add({
       targets: this.portal,
@@ -121,6 +148,19 @@ export class Town extends Scene {
     if (this.player && this.playerCollider) {
       this.playerCollider.x = this.player.x;
       this.playerCollider.y = this.player.y - this.player.height / 2;
+    }
+  }
+  checkNpcCollision() {
+    const isColliding = Phaser.Geom.Intersects.CircleToCircle(
+      this.playerCollider,
+      this.npcCollider,
+    );
+
+    if (isColliding && !this.isOverlapping) {
+      this.isOverlapping = true;
+      console.log("Hey, don't hurt the old man ! 😡");
+    } else if (!isColliding && this.isOverlapping) {
+      this.isOverlapping = false;
     }
   }
 
@@ -155,6 +195,7 @@ export class Town extends Scene {
   update() {
     this.updatePlayerCollider();
     this.checkPortalCollision();
+    this.checkNpcCollision();
   }
 
   changeScene() {
