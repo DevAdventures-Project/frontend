@@ -2,15 +2,15 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Clock, MapPin, Sword, Trophy, User } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import type { Quest } from "@/models/Quest";
 import { calculateRemainingTime } from "@/lib/calculateRemainingTime";
+import type { Quest } from "@/models/Quest";
+import { Clock, MapPin, Sword, Trophy, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { getQuests } from "../lib/api/getQuests";
 import { joinQuest } from "../lib/api/joinQuest";
 
