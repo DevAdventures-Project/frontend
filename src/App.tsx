@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { MainMenu } from "./game/scenes/MainMenu";
-import { Town } from "./game/scenes/Town";
+import type { Town } from "./game/scenes/Town";
 
 export default function App() {
   // The sprite can only be moved in the MainMenu Scene
@@ -24,14 +24,14 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
-  
+
       const scene = phaserRef.current.scene as Town;
       if (!scene || scene.scene.key !== "Town") return;
-  
+
       scene.movePlayer(({ x, y }) => {
         let newX = x;
         let newY = y;
-  
+
         switch (event.key) {
           case "ArrowUp":
             newY -= 10; // Move up
@@ -46,19 +46,18 @@ export default function App() {
             newX += 10; // Move right
             break;
         }
-  
+
         scene.updatePositionPlayer(newX, newY); // call method of mainMenu scene that move player
         setSpritePosition({ x: newX, y: newY });
       });
     };
-  
+
     document.addEventListener("keydown", handleKeyDown);
-  
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
 
   /*const moveSprite = () => {
     if (phaserRef.current) {
@@ -114,11 +113,7 @@ export default function App() {
           </button>
         </div>
         <div>
-          <button
-            disabled={canMoveSprite}
-            className="button"
-            type="button"
-          >
+          <button disabled={canMoveSprite} className="button" type="button">
             Toggle Movement
           </button>
         </div>
