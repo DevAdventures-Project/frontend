@@ -1,5 +1,5 @@
-import { reactToDom } from "@/lib/reactToDom";
 import MainMenuLayout from "@/components/MainMenuLayout";
+import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
 
