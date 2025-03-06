@@ -1,18 +1,16 @@
 import { type GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
 
-export class Town extends Scene {
-  town: GameObjects.Image;
+export class Dungeon extends Scene {
+  dungeon: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
 
   constructor() {
-    super("Town");
+    super("Dungeon");
   }
 
   preload() {
-    console.log("Town preload");
-
     // Load the player spritesheet with correct frame dimensions
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64, // Update to the correct frame width
@@ -28,8 +26,8 @@ export class Town extends Scene {
       },
     );
 
-    this.load.image("tiles", "assets/tilemaps/tiles/town.png");
-    this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
+    this.load.image("tiles", "assets/tilemaps/tiles/dungeon.png");
+    this.load.tilemapTiledJSON("dungeon", "assets/tilemaps/json/dungeon.json");
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
@@ -45,7 +43,7 @@ export class Town extends Scene {
   }
 
   create() {
-    this.town = this.add.image(512, 384, "town").setDepth(0);
+    this.dungeon = this.add.image(600, 450, "dungeon").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
       fontSize: 38,
@@ -88,6 +86,6 @@ export class Town extends Scene {
   }
 
   changeScene() {
-    this.scene.start("Dungeon");
+    this.scene.start("MainMenu");
   }
 }

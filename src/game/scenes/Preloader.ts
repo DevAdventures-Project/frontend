@@ -30,6 +30,7 @@ export class Preloader extends Scene {
     this.load.image("star", "star.png");
 
     this.load.image("town", "tilemaps/tiles/town.png");
+    this.load.image("dungeon", "tilemaps/tiles/dungeon.png");
   }
 
   create() {
