@@ -4,7 +4,7 @@ export async function login(
   email: string,
   password: string,
 ): Promise<{ id: number; pseudo: string; accessToken: string }> {
-  const API_URL = "https://hackaton.jayllyz.fr/";
+  const API_URL = process.env.API_URL;
 
   const responseLogin = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
