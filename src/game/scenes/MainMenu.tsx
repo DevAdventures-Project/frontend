@@ -1,4 +1,6 @@
 import { type GameObjects, Scene } from "phaser";
+import TestDialog from "@/components/testDialog";
+import ReactDOM from "react-dom/client";
 
 import { EventBus } from "../EventBus";
 
@@ -16,6 +18,12 @@ export class MainMenu extends Scene {
     this.background = this.add.image(512, 384, "background");
 
     this.logo = this.add.image(512, 300, "logo").setDepth(100);
+
+    const container = document.createElement("div");
+    const root = ReactDOM.createRoot(container);
+    root.render(<TestDialog />);
+
+    this.add.dom(850, 50, container);
 
     this.title = this.add
       .text(512, 460, "Main Menu", {
