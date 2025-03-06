@@ -31,6 +31,10 @@ export class Preloader extends Scene {
 
     this.load.image("town", "tilemaps/tiles/town.png");
     this.load.image("dungeon", "tilemaps/tiles/dungeon.png");
+    this.load.tilemapTiledJSON(
+      "dungeon_collisions",
+      "tilemaps/json/dungeon.json",
+    );
   }
 
   create() {

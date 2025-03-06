@@ -1,10 +1,12 @@
-import { type GameObjects, Scene } from "phaser";
+import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 
 export class Dungeon extends Scene {
   dungeon: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
+  map: Tilemaps.Tilemap;
+  collisionLayer: Phaser.Tilemaps.TilemapLayer;
 
   constructor() {
     super("Dungeon");
@@ -27,20 +29,22 @@ export class Dungeon extends Scene {
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
-    console.log("movePlayer");
     if (this.player) {
       callback({ x: this.player.x, y: this.player.y });
     }
   }
 
   updatePositionPlayer(x: number, y: number) {
-    console.log("updatePositionPlayer");
     if (this.player) {
       this.player.setPosition(x, y);
     }
   }
 
   create() {
+    // this.map = this.make.tilemap({ key: "dungeon" });
+    // const tileset = this.map.addTilesetImage("dungeon_collisions", "dungeon");
+    // const layer = this.map.createLayer("Collisions", tileset!, 0, 0);
+
     this.dungeon = this.add.image(600, 450, "dungeon").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
@@ -85,5 +89,6 @@ export class Dungeon extends Scene {
 
   changeScene() {
     this.scene.start("MainMenu");
+    this.physics.add.image(400, 300, "logo");
   }
 }

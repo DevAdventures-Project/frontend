@@ -54,7 +54,6 @@ export default function App() {
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      console.log("handleKeyUp");
       if (!phaserRef.current) return;
 
       const scene = phaserRef.current.scene as Town;

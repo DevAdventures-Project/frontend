@@ -11,8 +11,6 @@ export class Town extends Scene {
   }
 
   preload() {
-    console.log("Town preload");
-
     // Load the player spritesheet with correct frame dimensions
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64, // Update to the correct frame width
