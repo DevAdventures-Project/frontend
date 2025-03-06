@@ -1,25 +1,21 @@
-import ChatLayout from "@/components/ChatLayout";
-import { reactToDom } from "@/lib/reactToDom";
-import { type GameObjects, Scene } from "phaser";
+import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 
-export class Town extends Scene {
-  town: GameObjects.Image;
+export class Dungeon extends Scene {
+  dungeon: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
+  map: Tilemaps.Tilemap;
+  collisionLayer: Phaser.Tilemaps.TilemapLayer;
 
   constructor() {
-    super("Town");
+    super("Dungeon");
   }
 
   preload() {
-    console.log("Town preload");
-
-    this.add.dom(0, 0, reactToDom(<ChatLayout />));
-    // Load the player spritesheet with correct frame dimensions
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
-      frameWidth: 64, // Update to the correct frame width
-      frameHeight: 64, // Update to the correct frame height
+      frameWidth: 64,
+      frameHeight: 64,
     });
 
     this.load.spritesheet(
@@ -30,9 +26,6 @@ export class Town extends Scene {
         frameHeight: 32,
       },
     );
-
-    this.load.image("tiles", "assets/tilemaps/tiles/town.png");
-    this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
   }
 
   movePlayer(callback: (pos: { x: number; y: number }) => void) {
@@ -48,7 +41,31 @@ export class Town extends Scene {
   }
 
   create() {
-    this.town = this.add.image(512, 384, "town").setDepth(0);
+    const map = this.make.tilemap({ key: "dungeon" });
+    // Add tileset
+    //  const tileset = this.map.addTilesetImage("dungeon", "dungeon");
+    //  if (!tileset) {
+    //    console.error("Tileset 'dungeon' not found in tilemap.");
+    //    return;
+    //  }
+
+    //  // Create collision layer
+    //  const collisionLayer = this.map.createLayer("Obstacles", tileset, 0, 0);
+    //  if (!collisionLayer) {
+    //    console.error("Layer 'Obstacles' not found in tilemap.");
+    //    return;
+    //  }
+    // this.collisionLayer.setCollisionByExclusion([-1], true);
+
+    // // Debug visualization (optional)
+    // const debugGraphics = this.add.graphics().setAlpha(0.7);
+    // this.collisionLayer.renderDebug(debugGraphics, {
+    //   tileColor: null,
+    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
+    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+    // });
+
+    this.dungeon = this.add.image(600, 450, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
       fontSize: 38,
@@ -91,6 +108,7 @@ export class Town extends Scene {
   }
 
   changeScene() {
-    this.scene.start("Dungeon");
+    this.scene.start("MainMenu");
+    this.physics.add.image(400, 300, "logo");
   }
 }
