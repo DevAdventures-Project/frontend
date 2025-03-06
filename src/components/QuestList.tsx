@@ -68,7 +68,10 @@ function QuestList() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[1200px] text-black">
+      <DialogContent
+        className="sm:max-w-[1200px] text-black"
+        showCloseButton={false}
+      >
         <div className="mx-auto flex max-w-5xl flex-col overflow-hidden rounded-xl border bg-background shadow-lg md:flex-row">
           {/* Left sidebar - Quest list */}
           <div className="w-full border-r md:w-80">
