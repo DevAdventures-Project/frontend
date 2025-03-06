@@ -13,7 +13,7 @@ export class Town extends Scene {
   private npcCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
-  private portalRadius = 30;
+  private portalRadius = 20;
   private playerRadius = 10;
 
   constructor() {
@@ -59,6 +59,7 @@ export class Town extends Scene {
       this.player.setPosition(x, y);
       this.updatePlayerCollider();
       this.checkPortalCollision();
+      this.checkNpcCollision();
     }
   }
 
@@ -87,8 +88,8 @@ export class Town extends Scene {
       this.portalRadius,
     );
     this.npcCollider = new Phaser.Geom.Circle(
-      this.portal.x,
-      this.portal.y,
+      this.npc.x,
+      this.npc.y,
       this.portalRadius,
     );
     this.playerCollider = new Phaser.Geom.Circle(
@@ -149,6 +150,19 @@ export class Town extends Scene {
       this.playerCollider.y = this.player.y - this.player.height / 2;
     }
   }
+  checkNpcCollision() {
+    const isColliding = Phaser.Geom.Intersects.CircleToCircle(
+      this.playerCollider,
+      this.npcCollider,
+    );
+
+    if (isColliding && !this.isOverlapping) {
+      this.isOverlapping = true;
+      console.log("Hey, don't hurt the old man ! 😡");
+    } else if (!isColliding && this.isOverlapping) {
+      this.isOverlapping = false;
+    }
+  }
 
   checkPortalCollision() {
     const isColliding = Phaser.Geom.Intersects.CircleToCircle(
@@ -181,6 +195,7 @@ export class Town extends Scene {
   update() {
     this.updatePlayerCollider();
     this.checkPortalCollision();
+    this.checkNpcCollision();
   }
 
   changeScene() {

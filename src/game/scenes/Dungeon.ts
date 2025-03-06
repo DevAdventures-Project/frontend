@@ -11,7 +11,7 @@ export class Dungeon extends Scene {
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
-  private portalRadius = 30;
+  private portalRadius = 20;
   private playerRadius = 10;
 
   constructor() {
