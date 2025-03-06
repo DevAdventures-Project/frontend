@@ -32,6 +32,8 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   debugDot: Phaser.GameObjects.Graphics;
   obstaclesDebugGraphics: Phaser.GameObjects.Graphics;
+  private offsetX: number;
+  private offsetY: number;
 
   constructor() {
     super("Town");
@@ -49,20 +51,20 @@ export class Town extends Scene implements MovableScene {
     });
 
     this.load.spritesheet(
-      "player-idle",
-      "assets/npc/Knight/Idle/Idle-Sheet.png",
-      {
-        frameWidth: 32,
-        frameHeight: 32,
-      },
+        "player-idle",
+        "assets/npc/Knight/Idle/Idle-Sheet.png",
+        {
+          frameWidth: 32,
+          frameHeight: 32,
+        },
     );
     this.load.spritesheet(
-      "npc-idle",
-      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
-      {
-        frameWidth: 32,
-        frameHeight: 32,
-      },
+        "npc-idle",
+        "assets/npc/Wizzard/Idle/Idle-Sheet.png",
+        {
+          frameWidth: 32,
+          frameHeight: 32,
+        },
     );
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
@@ -79,17 +81,28 @@ export class Town extends Scene implements MovableScene {
       strokeThickness: 8,
       align: "center",
     });
+
+    // Calculer les offsets pour centrer le calque d'obstacles
     const mapWidthInTiles = 70;
+    const mapHeightInTiles = Math.floor(this.obstacles.length / mapWidthInTiles);
+    const layerWidth = mapWidthInTiles * this.tileWidth;    // largeur du calque en pixels
+    const layerHeight = mapHeightInTiles * this.tileHeight;   // hauteur du calque en pixels
+    const offsetX = (1024 - layerWidth) / 2;
+    const offsetY = (768 - layerHeight) / 2;
+
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+
     this.debugDot = this.add.graphics();
     this.obstaclesDebugGraphics = this.add.graphics();
     for (let i = 0; i < this.obstacles.length; i++) {
-      // If the tile is blocked (non-zero), draw a dot at its center.
+      // Si la tuile est bloquée (non zéro), dessiner un point à son centre.
       if (this.obstacles[i] !== 0) {
         const tileX = i % mapWidthInTiles;
         const tileY = Math.floor(i / mapWidthInTiles);
-        const dotX = tileX * this.tileWidth + this.tileWidth / 2;
-        const dotY = tileY * this.tileHeight + this.tileHeight / 2;
-        // Draw a small green dot for obstacles
+        const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
+        const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
+        // Dessiner un petit point vert pour les obstacles
         this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
         this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
       }
@@ -98,23 +111,21 @@ export class Town extends Scene implements MovableScene {
     this.portal = this.add.image(730, 352, "portal");
     this.portal.setScale(0.1);
 
-    this.player = this.add.sprite(410, 390, "player-run"); // Player start here
+    this.player = this.add.sprite(410, 402, "player-run"); // Player start here
     this.lastValidX = this.player.x;
     this.lastValidY = this.player.y;
 
-
-
     this.player.setOrigin(0.5, 0.5);
     this.playerCollider = new Phaser.Geom.Circle(
-      this.player.x,
-      this.player.y,
-      this.playerRadius,
+        this.player.x,
+        this.player.y,
+        this.playerRadius,
     );
 
     this.portalCollider = new Phaser.Geom.Circle(
-      this.portal.x,
-      this.portal.y,
-      this.portalRadius,
+        this.portal.x,
+        this.portal.y,
+        this.portalRadius,
     );
 
     this.createAnimations();
@@ -133,12 +144,12 @@ export class Town extends Scene implements MovableScene {
     this.dialogManager = new DialogManager(this);
 
     EventBus.on(
-      "get-dialog-manager",
-      (callback: (dialogManager: DialogManager) => void) => {
-        if (callback && typeof callback === "function") {
-          callback(this.dialogManager);
-        }
-      },
+        "get-dialog-manager",
+        (callback: (dialogManager: DialogManager) => void) => {
+          if (callback && typeof callback === "function") {
+            callback(this.dialogManager);
+          }
+        },
     );
 
     const npcName = "M. Sananes";
@@ -245,8 +256,8 @@ export class Town extends Scene implements MovableScene {
 
   checkNpcCollision() {
     const isColliding = Phaser.Geom.Intersects.CircleToCircle(
-      this.playerCollider,
-      this.npcCollider,
+        this.playerCollider,
+        this.npcCollider,
     );
 
     if (isColliding && !this.isOverlapping) {
@@ -258,8 +269,8 @@ export class Town extends Scene implements MovableScene {
 
   checkPortalCollision() {
     const isColliding = Phaser.Geom.Intersects.CircleToCircle(
-      this.playerCollider,
-      this.portalCollider,
+        this.playerCollider,
+        this.portalCollider,
     );
 
     if (isColliding && !this.isOverlapping) {
@@ -317,8 +328,7 @@ export class Town extends Scene implements MovableScene {
       this.debugDot.fillStyle(0xff0000, 1);
       this.debugDot.fillCircle(dotX, dotY, 5);
     }
-    
-}
+  }
 
   changeScene() {
     this.cleanupQuestUIs();
@@ -326,8 +336,12 @@ export class Town extends Scene implements MovableScene {
   }
 
   isPositionBlocked(x: number, y: number) {
-    const tileX = Math.floor(x / this.tileWidth);
-    const tileY = Math.floor(y / this.tileHeight);
+    // Ajuster la position en soustrayant l'offset
+    const adjustedX = x - this.offsetX;
+    const adjustedY = y - this.offsetY;
+
+    const tileX = Math.floor(adjustedX / this.tileWidth);
+    const tileY = Math.floor(adjustedY / this.tileHeight);
     const mapWidthInTiles = 70;
     const mapHeightInTiles = this.obstacles.length / mapWidthInTiles;
 
@@ -338,7 +352,8 @@ export class Town extends Scene implements MovableScene {
     const index = tileY * mapWidthInTiles + tileX;
     return this.obstacles[index] !== 0;
   }
-  
+
+
 
   obstacles = [1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,
     1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,
