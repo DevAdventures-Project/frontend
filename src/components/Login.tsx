@@ -32,7 +32,11 @@ const formSchema = z.object({
     .regex(/[a-zA-Z0-9]/, { message: "Password must be alphanumeric" }),
 });
 
-export default function LoginPreview() {
+interface LoginProps {
+  loggedIn: boolean;
+}
+
+const LoginPreview = (props: LoginProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,7 +65,9 @@ export default function LoginPreview() {
   return (
     <div
       id="masker"
-      className="relative w-[1024px] h-[768px] overflow-hidden bg-black"
+      className={`relative w-[1024px] h-[768px] overflow-hidden bg-black ${
+        props.loggedIn ? "hidden" : ""
+      }`}
     >
       <div className="flex flex-col min-h-[50vh] h-full w-full items-center justify-center px-4">
         <Card className="mx-auto max-w-sm">
@@ -127,4 +133,6 @@ export default function LoginPreview() {
       </div>
     </div>
   );
-}
+};
+
+export default LoginPreview;

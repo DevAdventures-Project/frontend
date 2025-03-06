@@ -9,21 +9,43 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { calculateRemainingTime } from "@/lib/calculateRemainingTime";
 import type { Quest } from "@/models/Quest";
-import { Clock, MapPin, Sword, Trophy, User } from "lucide-react";
+import {
+  Clock,
+  MapPin,
+  Sword,
+  User,
+  Users,
+  Link2,
+  BrainCircuit,
+  Coins,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { getQuests } from "../lib/api/getQuests";
 import { joinQuest } from "../lib/api/joinQuest";
+import { deleteQuest } from "@/lib/api/deleteQuest";
+import { quitQuest } from "@/lib/api/quitQuest";
 
 function QuestDialog() {
   const [selectedQuest, setSelectedQuest] = useState<(typeof quests)[0] | null>(
     null,
   );
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [token, setToken] = useState<string>(
+    localStorage.getItem("accessToken") || "",
+  );
+  const [pseudo, setPseudo] = useState<string>(
+    localStorage.getItem("pseudo") || "",
+  );
 
   useEffect(() => {
     async function fetchQuests() {
-      const fetchedQuests = await getQuests();
-      setQuests(fetchedQuests);
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        setUserId(Number.parseInt(userId));
+        const fetchedQuests = await getQuests(Number.parseInt(userId));
+        setQuests(fetchedQuests);
+      }
     }
 
     fetchQuests();
@@ -108,7 +130,7 @@ function QuestDialog() {
                       <div>
                         <p className="text-sm font-medium">Donneur de quête</p>
                         <p className="text-sm text-muted-foreground">
-                          {selectedQuest.authorId}
+                          {selectedQuest.author.pseudo}
                         </p>
                       </div>
                     </div>
@@ -132,6 +154,34 @@ function QuestDialog() {
                         </p>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-2 rounded-lg border p-3">
+                      <Users className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Membres</p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {selectedQuest.helpers.length} /{" "}
+                          {selectedQuest.nbHelpers}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 rounded-lg border p-3">
+                      <Link2 className="h-5 w-5 text-primary" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">Lien</p>
+                        <p className="text-sm text-muted-foreground capitalize truncate">
+                          <a
+                            href={selectedQuest.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline"
+                          >
+                            {selectedQuest.link}
+                          </a>
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <h3 className="mb-3 text-lg font-semibold">
@@ -146,6 +196,7 @@ function QuestDialog() {
                     <h3 className="mb-3 text-lg font-semibold">Récompenses</h3>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="flex items-center gap-2 rounded-lg border p-3">
+                        <BrainCircuit className="h-5 w-5 text-primary" />
                         <div>
                           <p className="text-sm font-medium">Expérience</p>
                           <p className="text-sm text-muted-foreground">50 XP</p>
@@ -153,7 +204,7 @@ function QuestDialog() {
                       </div>
 
                       <div className="flex items-center gap-2 rounded-lg border p-3">
-                        <Trophy className="h-5 w-5 text-yellow-500" />
+                        <Coins className="h-5 w-5" />
                         <div>
                           <p className="text-sm font-medium">Points</p>
                           <p className="text-sm text-muted-foreground">
@@ -162,15 +213,96 @@ function QuestDialog() {
                         </div>
                       </div>
                     </div>
-
                     <div className="my-6 flex items-center justify-center">
-                      <Button
-                        className="w-[50%]"
-                        variant="success"
-                        onClick={() => joinQuest(selectedQuest.id)}
-                      >
-                        Accepter la quête
-                      </Button>
+                      {selectedQuest.author.id === userId ? (
+                        <Button
+                          className="w-[50%]"
+                          variant="destructive"
+                          onClick={async () => {
+                            try {
+                              const success = await deleteQuest(
+                                selectedQuest.id,
+                              );
+                              if (success) {
+                                setQuests((prevQuests) =>
+                                  prevQuests.filter(
+                                    (quest) => quest.id !== selectedQuest.id,
+                                  ),
+                                );
+                                // Reset the selected quest
+                                setSelectedQuest(null);
+                              }
+                            } catch (error) {
+                              console.error("Failed to delete quest:", error);
+                            }
+                          }}
+                        >
+                          Retirer la quête
+                        </Button>
+                      ) : selectedQuest.helpers.some(
+                          (helper) => helper.id === userId,
+                        ) ? (
+                        <Button
+                          className="w-[50%]"
+                          variant="warning"
+                          onClick={async () => {
+                            try {
+                              const success = await quitQuest(
+                                selectedQuest.id,
+                                token,
+                              );
+                              if (success) {
+                                setQuests((prevQuests) =>
+                                  prevQuests.map((quest) => {
+                                    if (quest.id === selectedQuest.id) {
+                                      quest.helpers = quest.helpers.filter(
+                                        (helper) => helper.id !== userId,
+                                      );
+                                    }
+                                    return quest;
+                                  }),
+                                );
+                              }
+                            } catch (error) {
+                              console.error("Failed to quit quest:", error);
+                            }
+                          }}
+                        >
+                          Quitter la quête
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-[50%]"
+                          variant="success"
+                          onClick={async () => {
+                            try {
+                              const success = await joinQuest(
+                                selectedQuest.id,
+                                token,
+                              );
+                              if (success) {
+                                setQuests((prevQuests) =>
+                                  prevQuests.map((quest) => {
+                                    if (quest.id === selectedQuest.id) {
+                                      if (userId !== null) {
+                                        quest.helpers.push({
+                                          id: userId,
+                                          pseudo: pseudo,
+                                        });
+                                      }
+                                    }
+                                    return quest;
+                                  }),
+                                );
+                              }
+                            } catch (error) {
+                              console.error("Failed to join quest:", error);
+                            }
+                          }}
+                        >
+                          Accepter la quête
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
