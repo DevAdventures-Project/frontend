@@ -25,12 +25,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchIssues, fetchRepos } from "@/lib/api/github";
+import type { Issue } from "@/models/Issue";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { ExternalLink, GithubIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Message, useForm } from "react-hook-form";
 import * as z from "zod";
 
+interface Repo {
+  id: number;
+  name: string;
+}
+
 const formSchema = z.object({
+  repo_name: z.string().optional(),
+  issueUrl: z.string().optional(),
   title: z.string({ message: "Un nom de quête est requis" }).min(1),
   zone: z.string({ message: "La zone est requise" }),
   difficulty: z.string({ message: "Le niveau est requis" }),
@@ -43,17 +53,64 @@ const formSchema = z.object({
       },
     ),
   description: z.string().optional(),
-  link: z.string({ message: "Le lien est requis" }),
 });
 
 function CreateQuest() {
+  const [respos, setRepos] = useState<Repo[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [repoSelected, setRepoSelect] = useState<boolean>(false);
+
+  useEffect(() => {
+    const getRepos = async () => {
+      try {
+        setRepos(await fetchRepos());
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getRepos();
+  }, []);
+
+  function handleRepoSelected() {
+    console.log("hlelo");
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
+  const { watch } = form;
+  const repoName = watch("repo_name");
+  const issueUrl = watch("issueUrl");
+
+  useEffect(() => {
+    const getIssues = async () => {
+      if (repoName === undefined) return;
+      try {
+        const issues = await fetchIssues(repoName);
+        setIssues(issues);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    if (repoName) {
+      setRepoSelect(true);
+      getIssues();
+    }
+  }, [repoName]);
+
+  useEffect(() => {
+    if (issueUrl) {
+      console.log(issueUrl);
+    }
+  }, [issueUrl]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
+
+  console.log(`truc = ${repoSelected}`);
 
   return (
     <Dialog>
@@ -71,6 +128,77 @@ function CreateQuest() {
             className="space-y-8 max-w-3xl mx-auto"
           >
             <ScrollArea className="h-[480px] w-[750px] rounded-md border px-4 text-black">
+              <FormField
+                control={form.control}
+                name="repo_name"
+                render={({ field }) => (
+                  <FormItem className="my-4">
+                    <div className="flex gap-2">
+                      <GithubIcon />
+                      <FormLabel>Depot Github</FormLabel>
+                    </div>
+                    <div className="flex items-center">
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Sélectionnez un dépot github" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {respos.map((r) => (
+                            <SelectItem key={r.id} value={r.name}>
+                              {r.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="issueUrl"
+                render={({ field }) => (
+                  <FormItem
+                    className={`my-4 transition-opacity duration-500 ${
+                      repoSelected ? "opacity-100" : "opacity-0"
+                    } ${repoSelected ? "block" : "hidden"}`}
+                  >
+                    <FormLabel>Issue Github</FormLabel>
+                    <div className="flex items-center">
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select issue" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {issues.map((issue) => (
+                            <div key={issue.id}>
+                              <SelectItem value={issue.html_url}>
+                                <div className="flex justify-between items-center w-full">
+                                  <span>{issue.title} </span>
+                                </div>
+                              </SelectItem>
+                            </div>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="title"
@@ -163,24 +291,6 @@ function CreateQuest() {
                       <Textarea
                         placeholder="Description de la quête"
                         className="h-[200px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="link"
-                render={({ field }) => (
-                  <FormItem className="my-4">
-                    <FormLabel>Lien</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Le lien vers l'issue/ticket"
-                        type="text"
                         {...field}
                       />
                     </FormControl>
