@@ -70,7 +70,7 @@ export class Town extends Scene {
       repeat: -1, // Loop indefinitely
     });
 
-    this.player.setOrigin(0.5, 1); 
+    this.player.setOrigin(0.5, 1);
 
     this.anims.create({
       key: "idle",
