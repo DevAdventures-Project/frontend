@@ -22,15 +22,14 @@ export class Town extends Scene {
 
   create() {
     this.town = this.add.image(512, 384, "town").setDepth(0);
-    this.title = this.add
-    .text(100, 100, "The Hub", {
+    this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 8,
       align: "center",
-    })
+    });
 
     EventBus.emit("current-scene-ready", this);
   }
