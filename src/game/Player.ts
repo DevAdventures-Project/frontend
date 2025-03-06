@@ -96,18 +96,38 @@ export class Player {
 
   public updatePosition(x: number, y: number): void {
     if (!this.scene.player || this.isDialogActive) return;
-
+  
+    // Debug: calculate tile indices and print current move info.
+    // Since tileWidth and obstacles are defined in Town.tsx, cast the scene as any for debugging.
+    const tileWidth = (this.scene as any).tileWidth;
+    const tileHeight = (this.scene as any).tileHeight;
+    const tileX = Math.floor(x / tileWidth);
+    const tileY = Math.floor(y / tileHeight);
+    const mapWidthInTiles = 70; // assuming a fixed width from Town.tsx
+    const index = tileY * mapWidthInTiles + tileX;
+    const obstacleValue = (this.scene as any).obstacles[index];
+  
+    console.log(`Attempting move to: x=${x}, y=${y}`);
+    console.log(`Tile coordinates: (${tileX}, ${tileY}) -> index: ${index}, obstacle value: ${obstacleValue}`);
+  
+    if (this.scene.isPositionBlocked(x, y)) {
+      console.log(`Blocked move at: x=${x}, y=${y} (tile index ${index})`);
+      return;
+    }
+  
+    // Update the player's position if the move is valid.
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
     this.scene.updatePlayerCollider();
     this.scene.checkPortalCollision();
-
+  
     if (this.scene.checkNpcCollision) {
       this.scene.checkNpcCollision();
     }
-
+  
     EventBus.emit("player-position-updated", this.playerPosition);
   }
+  
 
   public setPosition(x: number, y: number): void {
     this.updatePosition(x, y);
