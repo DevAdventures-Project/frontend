@@ -1,7 +1,9 @@
 import ChatLayout from "@/components/ChatLayout";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
+import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
+import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 
 export class Town extends Scene implements MovableScene {
@@ -17,6 +19,8 @@ export class Town extends Scene implements MovableScene {
   private portalRadius = 20;
   private playerRadius = 10;
   playerMovement: Player;
+  dialogManager: DialogManager;
+  wizardNpc: Npc;
 
   constructor() {
     super("Town");
@@ -61,30 +65,97 @@ export class Town extends Scene implements MovableScene {
       align: "center",
     });
 
-    this.portal = this.add.image(730, 352, "star");
-    this.portal.setScale(0.5);
-    this.npc = this.add.sprite(670, 440, "npc-idle");
-    this.npc.setOrigin(0.5, 1);
-    this.npc.anims.play("idle");
+    this.portal = this.add.image(730, 352, "portal");
+    this.portal.setScale(0.1);
+
     this.player = this.add.sprite(410, 390, "player-run");
     this.player.setOrigin(0.5, 0.5);
-
-    this.portalCollider = new Phaser.Geom.Circle(
-      this.portal.x,
-      this.portal.y,
-      this.portalRadius,
-    );
-    this.npcCollider = new Phaser.Geom.Circle(
-      this.npc.x,
-      this.npc.y,
-      this.portalRadius,
-    );
     this.playerCollider = new Phaser.Geom.Circle(
       this.player.x,
       this.player.y,
       this.playerRadius,
     );
 
+    this.portalCollider = new Phaser.Geom.Circle(
+      this.portal.x,
+      this.portal.y,
+      this.portalRadius,
+    );
+
+    this.createAnimations();
+
+    this.player.setOrigin(0.5, 1);
+
+    this.tweens.add({
+      targets: this.portal,
+      scale: 0.15,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+
+    this.dialogManager = new DialogManager(this);
+
+    EventBus.on(
+      "get-dialog-manager",
+      (callback: (dialogManager: DialogManager) => void) => {
+        if (callback && typeof callback === "function") {
+          callback(this.dialogManager);
+        }
+      },
+    );
+
+    const npcName = "Wizard";
+    this.wizardNpc = new Npc(this, {
+      name: npcName,
+      x: 670,
+      y: 440,
+      texture: "npc-idle",
+      animation: "npc-idle",
+      interactionRadius: 50,
+      dialogs: {
+        npcName: npcName,
+        messages: [
+          "Greetings, traveler! I am the guardian of this town.",
+          "Beyond that portal lies a dangerous dungeon filled with treasures and perils.",
+          "Are you prepared to face what awaits you there?",
+        ],
+        responses: [
+          {
+            text: "Yes, I'm ready for the challenge!",
+            next: {
+              npcName: npcName,
+              messages: [
+                "Brave soul! May fortune favor you in your journey.",
+                "Remember, the key to survival is not just strength, but wisdom.",
+                "Take this advice: The shadows hide more than just monsters.",
+              ],
+            },
+          },
+          {
+            text: "No, I'm not ready yet.",
+            next: {
+              npcName: npcName,
+              messages: [
+                "A prudent decision. It's better to be prepared than to rush into danger.",
+                "Take your time to gather equipment and knowledge before you venture forth.",
+                "I'll be here when you're ready.",
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    this.npcCollider = this.wizardNpc.getCollider();
+
+    this.playerMovement = new Player(this);
+
+    EventBus.emit("current-scene-ready", this);
+  }
+
+  createAnimations(): void {
     this.anims.create({
       key: "run",
       frames: this.anims.generateFrameNumbers("player-run", {
@@ -94,8 +165,6 @@ export class Town extends Scene implements MovableScene {
       frameRate: 10,
       repeat: -1,
     });
-
-    this.player.setOrigin(0.5, 1);
 
     this.anims.create({
       key: "idle",
@@ -116,21 +185,6 @@ export class Town extends Scene implements MovableScene {
       frameRate: 10,
       repeat: -1,
     });
-
-    this.npc.anims.play("npc-idle");
-
-    this.tweens.add({
-      targets: this.portal,
-      scale: 0.6,
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
-
-    this.playerMovement = new Player(this);
-
-    EventBus.emit("current-scene-ready", this);
   }
 
   updatePlayerCollider() {
@@ -148,7 +202,6 @@ export class Town extends Scene implements MovableScene {
 
     if (isColliding && !this.isOverlapping) {
       this.isOverlapping = true;
-      console.log("Hey, don't hurt the old man ! 😡");
     } else if (!isColliding && this.isOverlapping) {
       this.isOverlapping = false;
     }
@@ -169,9 +222,11 @@ export class Town extends Scene implements MovableScene {
   }
 
   activatePortal() {
+    if (this.dialogManager.isActive()) return;
+
     this.tweens.add({
       targets: this.portal,
-      scale: 1.5,
+      scale: 0.2,
       alpha: 0,
       duration: 500,
       onComplete: () => {
@@ -186,6 +241,10 @@ export class Town extends Scene implements MovableScene {
     this.updatePlayerCollider();
     this.checkPortalCollision();
     this.checkNpcCollision();
+
+    this.wizardNpc.update(this.playerCollider);
+
+    this.playerMovement.update();
   }
 
   changeScene() {
