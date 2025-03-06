@@ -19,6 +19,11 @@ export class Town extends Scene {
       frameHeight: 64, // Update to the correct frame height
     });
 
+    this.load.spritesheet("player-idle", "assets/npc/Knight/Idle/Idle-Sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
   }
@@ -63,7 +68,7 @@ export class Town extends Scene {
 
     this.anims.create({
       key: 'idle',
-      frames: this.anims.generateFrameNumbers('player-run', { start: 0, end: 0 }),
+      frames: this.anims.generateFrameNumbers('player-idle', { start: 0, end: 3}),
       frameRate: 10,
       repeat: -1
     });
