@@ -1,6 +1,6 @@
 export interface UserLeaderBoard {
   id: number;
-  email : string;
+  email: string;
   pseudo: string;
   coins: number;
   position: number;

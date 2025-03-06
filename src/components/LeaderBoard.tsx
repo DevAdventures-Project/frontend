@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import LeaderboardButton from "./ui/LeaderboardToggle";
-import { UserLeaderBoard } from "@/models/UserLeaderBoard";
 import { getRankings } from "@/lib/api/leaderboard/getAllUsers";
+import type { UserLeaderBoard } from "@/models/UserLeaderBoard";
+import { useEffect, useRef, useState } from "react";
 import LeaderBoardModal from "./ui/LeaderBoardModal";
+import LeaderboardButton from "./ui/LeaderboardToggle";
 
 export default function LeaderBoard() {
   const [leaderBoardVisible, setLeaderBoardVisible] = useState(false);
@@ -18,11 +18,11 @@ export default function LeaderBoard() {
       setUsers(users);
     }
     fetchRankings();
-  },[]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if(leaderBoardVisible){
+      if (leaderBoardVisible) {
         setLeaderBoardVisible(false);
       }
     };
@@ -40,7 +40,7 @@ export default function LeaderBoard() {
           <LeaderBoardModal users={users} />
         </div>
       )}
-  
+
       <LeaderboardButton
         onClick={toggleLeaderBoardVisible}
         className="fixed bottom-4 right-4 z-50"

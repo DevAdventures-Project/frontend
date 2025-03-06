@@ -1,6 +1,8 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
+import LeaderBoard from "@/components/LeaderBoard";
 import QuestList from "@/components/QuestList";
+import LeaderboardButton from "@/components/ui/LeaderboardToggle";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
@@ -8,8 +10,6 @@ import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import LeaderBoard from "@/components/LeaderBoard";
-import LeaderboardButton from "@/components/ui/LeaderboardToggle";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
@@ -28,7 +28,7 @@ export class Town extends Scene implements MovableScene {
   wizardNpc: Npc;
   private questListDom: Phaser.GameObjects.DOMElement | null = null;
   private createQuestDom: Phaser.GameObjects.DOMElement | null = null;
-  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null
+  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null;
 
   constructor() {
     super("Town");
@@ -153,15 +153,15 @@ export class Town extends Scene implements MovableScene {
   }
 
   addLeaderboardButton(): void {
-    const gameHeight = this.sys.game.canvas.height
-    const gameWidth = this.sys.game.canvas.width
+    const gameHeight = this.sys.game.canvas.height;
+    const gameWidth = this.sys.game.canvas.width;
 
     this.leaderboardDom = this.add.dom(
-      300, 
+      300,
       gameHeight,
-      reactToDom(<LeaderBoard/>),
-    )
-    this.leaderboardDom.setDepth(1000) // Ensure it's above other elements
+      reactToDom(<LeaderBoard />),
+    );
+    this.leaderboardDom.setDepth(1000); // Ensure it's above other elements
   }
 
   showQuestList(): void {

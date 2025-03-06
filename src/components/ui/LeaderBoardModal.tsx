@@ -1,8 +1,8 @@
-import { UserLeaderBoard } from "@/models/UserLeaderBoard";
+import type { UserLeaderBoard } from "@/models/UserLeaderBoard";
 import { Trophy } from "lucide-react";
-import { forwardRef, RefObject } from "react";
+import { RefObject, forwardRef } from "react";
+import LeaderBoard from "../LeaderBoard";
 import LeaderboardButton from "./LeaderboardToggle";
-import LeaderBoard from '../LeaderBoard';
 
 interface LeaderboardButtonProps {
   users: UserLeaderBoard[];
@@ -36,7 +36,7 @@ export default function LeaderBoardModal({ users }: LeaderboardButtonProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {users.map((user : UserLeaderBoard) => (
+            {users.map((user: UserLeaderBoard) => (
               <tr
                 key={user.id}
                 className={`hover:bg-gray-50 dark:hover:bg-gray-800 ${
@@ -47,7 +47,9 @@ export default function LeaderBoardModal({ users }: LeaderboardButtonProps) {
                   {user.position}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="font-medium text-gray-900 dark:text-white">{user.pseudo}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {user.pseudo}
+                  </div>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-right font-mono font-medium text-gray-900 dark:text-white">
                   {user.coins.toLocaleString()} Coin
@@ -59,5 +61,4 @@ export default function LeaderBoardModal({ users }: LeaderboardButtonProps) {
       </div>
     </div>
   );
-};
-
+}

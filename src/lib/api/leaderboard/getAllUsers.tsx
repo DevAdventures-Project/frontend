@@ -1,6 +1,6 @@
 "use server";
 
-import { UserLeaderBoard } from "@/models/UserLeaderBoard";
+import type { UserLeaderBoard } from "@/models/UserLeaderBoard";
 
 export async function getRankings(): Promise<UserLeaderBoard[]> {
   const API_URL = process.env.API_URL;
@@ -16,9 +16,9 @@ export async function getRankings(): Promise<UserLeaderBoard[]> {
     throw new Error("Error deleting quest");
   }
 
-  const data: UserLeaderBoard[] = await response.json()
+  const data: UserLeaderBoard[] = await response.json();
 
-  for(let i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     data[i].position = i + 1;
   }
 

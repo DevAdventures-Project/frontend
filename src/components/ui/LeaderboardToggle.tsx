@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Trophy } from "lucide-react"
+import { Trophy } from "lucide-react";
 
 interface LeaderboardButtonProps {
   onClick?: () => void;
-  className?: string
-  label?: string
+  className?: string;
+  label?: string;
 }
 
 export default function LeaderboardButton({
@@ -13,9 +13,9 @@ export default function LeaderboardButton({
   className = "",
   label = "Leaderboard",
 }: LeaderboardButtonProps) {
-
   return (
     <button
+      type="button"
       className={`
         flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white
         bg-gradient-to-r from-blue-600 to-blue-400
@@ -31,5 +31,5 @@ export default function LeaderboardButton({
       <Trophy className="w-5 h-5" />
       <span>{label}</span>
     </button>
-  )
+  );
 }
