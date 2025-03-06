@@ -5,12 +5,10 @@ import type { Town } from "./game/scenes/Town";
 
 export default function App() {
   const speedMovement = 10;
-  // The sprite can only be moved in the MainMenu Scene
   const [canMoveSprite, setCanMoveSprite] = useState(true);
-
-  //  References to the PhaserGame component (game and scene are exposed)
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
+  const walkableScenes = ["Town", "Dungeon"];
 
   const changeScene = () => {
     if (phaserRef.current) {
@@ -27,7 +25,7 @@ export default function App() {
       if (!phaserRef.current) return;
 
       const scene = phaserRef.current.scene as Town;
-      if (!scene || scene.scene.key !== "Town") return;
+      if (!scene || !walkableScenes.includes(scene.scene.key)) return;
 
       scene.player?.anims.play("run", true);
 
@@ -37,30 +35,29 @@ export default function App() {
 
         switch (event.key) {
           case "ArrowUp":
-            newY -= speedMovement; // Move up
+            newY -= speedMovement;
             break;
           case "ArrowDown":
-            newY += speedMovement; // Move down
+            newY += speedMovement;
             break;
           case "ArrowLeft":
-            newX -= speedMovement; // Move left
+            newX -= speedMovement;
             break;
           case "ArrowRight":
-            newX += speedMovement; // Move right
+            newX += speedMovement;
             break;
         }
 
-        scene.updatePositionPlayer(newX, newY); // call method of mainMenu scene that move player
+        scene.updatePositionPlayer(newX, newY);
         setSpritePosition({ x: newX, y: newY });
       });
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      console.log("handleKeyUp");
       if (!phaserRef.current) return;
 
       const scene = phaserRef.current.scene as Town;
-      if (!scene || scene.scene.key !== "Town") return;
+      if (!scene || !walkableScenes.includes(scene.scene.key)) return;
       scene.player?.anims.play("idle");
     };
 
@@ -78,7 +75,7 @@ export default function App() {
       const scene = phaserRef.current.scene as MainMenu;
 
       if (scene && scene.scene.key === "MainMenu") {
-        // Get the update logo position
+        
         scene.moveLogo(({ x, y }) => {
           setSpritePosition({ x, y });
         });
@@ -86,7 +83,6 @@ export default function App() {
     }
   };*/
 
-  // Event emitted from the PhaserGame component
   const currentScene = (scene: Phaser.Scene) => {
     setCanMoveSprite(scene.scene.key !== "MainMenu");
   };

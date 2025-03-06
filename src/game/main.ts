@@ -1,5 +1,6 @@
 import { AUTO, Game } from "phaser";
 import { Boot } from "./scenes/Boot";
+import { Dungeon } from "./scenes/Dungeon";
 import { Game as MainGame } from "./scenes/Game";
 import { GameOver } from "./scenes/GameOver";
 import { MainMenu } from "./scenes/MainMenu";
@@ -14,7 +15,14 @@ const config: Phaser.Types.Core.GameConfig = {
   height: 768,
   parent: "game-container",
   backgroundColor: "#028af8",
-  scene: [Boot, Preloader, MainMenu, MainGame, GameOver, Town],
+  scene: [Boot, Preloader, MainMenu, MainGame, GameOver, Town, Dungeon],
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 0, x: 0 },
+      debug: false,
+    },
+  },
   dom: {
     createContainer: true,
   },
