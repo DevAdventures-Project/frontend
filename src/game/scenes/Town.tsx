@@ -1,6 +1,8 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
+import LeaderBoard from "@/components/LeaderBoard";
 import QuestList from "@/components/QuestList";
+import LeaderboardButton from "@/components/ui/LeaderboardToggle";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import { type GameObjects, Scene } from "phaser";
@@ -28,6 +30,7 @@ export class Town extends Scene implements MovableScene {
   playerMovement: Player;
   dialogManager: DialogManager;
   wizardNpc: Npc;
+  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null;
   questListDom: GameObjects.DOMElement | null = null;
   createQuestDom: GameObjects.DOMElement | null = null;
   tileWidth: number;
@@ -51,6 +54,7 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
+    this.addLeaderboardButton();
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -195,6 +199,18 @@ export class Town extends Scene implements MovableScene {
     EventBus.emit("current-scene-ready", this);
 
     this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
+  }
+
+  addLeaderboardButton(): void {
+    const gameHeight = this.sys.game.canvas.height;
+    const gameWidth = this.sys.game.canvas.width;
+
+    this.leaderboardDom = this.add.dom(
+      300,
+      gameHeight,
+      reactToDom(<LeaderBoard />),
+    );
+    this.leaderboardDom.setDepth(1000); // Ensure it's above other elements
   }
 
   showQuestList(): void {
