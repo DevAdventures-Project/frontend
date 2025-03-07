@@ -1,48 +1,103 @@
 "use client";
 
-import type React from "react";
-
+import { WebSocketContext } from "@/contexts/WebSocketContext";
+import { createQuestMessage } from "@/lib/api/createQuestMessage";
+import { getChatRooms } from "@/lib/api/getChatRooms";
+import { getQuestsChat } from "@/lib/api/getQuestsChat";
 import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
-import { Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Send } from "lucide-react";
+import type React from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface GameChatProps {
   isVisible: boolean;
   currentUser: UserChat;
-  room: string;
-  onSendMessage: (content: string) => void;
-  messages: Message[];
 }
 
-export default function GameChat({
-  isVisible,
-  currentUser,
-  room,
-  onSendMessage,
-  messages,
-}: GameChatProps) {
+export default function GameChat({ isVisible, currentUser }: GameChatProps) {
+  const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [messageInput, setMessageInput] = useState("");
+  const [currentRoomId, setCurrentRoomId] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [availableRooms, setAvailableRooms] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const wsClient = useContext(WebSocketContext);
 
-  // Scroll to bottom when new messages arrive
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    if (currentRoomId === 0) {
+      const handleMessage = (data: string) => {
+        const newMessage: Message = JSON.parse(data);
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          0: [...(prevMessages[0] || []), newMessage],
+        }));
+      };
+
+      wsClient.on("message", handleMessage);
+
+      return () => {
+        wsClient.off("message", handleMessage);
+      };
+    }
+  }, [currentRoomId, wsClient]);
+
+  const sendQuestMessage = (
+    content: string,
+    userId: number,
+    questId: number,
+  ) => {
+    createQuestMessage(content, userId, questId);
+    setMessages((prevMessages) => ({
+      ...prevMessages,
+      [questId]: [
+        ...(prevMessages[questId] || []),
+        {
+          content,
+          author: { id: userId, pseudo: currentUser.pseudo },
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    }));
+  };
+
+  useEffect(() => {
+    getQuestsChat().then((data) => {
+      setMessages(data);
+    });
+    getChatRooms().then((data) => {
+      setAvailableRooms(data);
+    });
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, []);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim()) {
-      onSendMessage(messageInput);
+      if (currentRoomId === 0) {
+        const newMessage: Message = {
+          content: messageInput,
+          author: currentUser,
+          createdAt: new Date().toISOString(),
+        };
+        wsClient.emit("message", JSON.stringify(newMessage));
+      } else {
+        sendQuestMessage(messageInput, currentUser.id, currentRoomId);
+      }
       setMessageInput("");
     }
+  };
+
+  const handleRoomChange = (roomId: number) => {
+    setCurrentRoomId(roomId);
   };
 
   // Custom drag handlers
@@ -54,22 +109,21 @@ export default function GameChat({
     });
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging && chatRef.current) {
-      const newX = e.clientX - dragStart.x;
-      const newY = e.clientY - dragStart.y;
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && chatRef.current) {
+        const newX = e.clientX - dragStart.x;
+        const newY = e.clientY - dragStart.y;
+        setPosition({ x: newX, y: newY });
+      }
+    },
+    [isDragging, dragStart.x, dragStart.y],
+  );
 
-      // Optional: Add bounds checking here if needed
-      setPosition({ x: newX, y: newY });
-    }
-  };
-
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
-  // Set up and clean up event listeners
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -80,83 +134,155 @@ export default function GameChat({
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   if (!isVisible) return null;
 
   return (
     <div
       ref={chatRef}
-      className="z-[1000] w-80 h-96 bg-black/80 border border-gray-700 rounded-md shadow-lg flex flex-col overflow-hidden"
+      className="z-[1000] flex bg-black/80 border border-gray-700 rounded-md shadow-lg overflow-hidden"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         cursor: isDragging ? "grabbing" : "auto",
+        width: isSidebarOpen ? "30rem" : "20rem",
+        height: "24rem",
       }}
     >
-      {/* Chat header - draggable area */}
-      <div
-        className="bg-gray-800 px-4 py-2 cursor-grab flex justify-between items-center"
-        onMouseDown={handleMouseDown}
-        style={{ cursor: isDragging ? "grabbing" : "grab" }}
-      >
-        <h3 className="text-white font-bold">{room} Chat</h3>
-        <div className="text-xs text-gray-400">{messages.length} messages</div>
-      </div>
-
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
-        {messages.map((message) => (
-          <div
-            key={message.createdAt}
-            className={`flex flex-col ${message.author.id === currentUser.id ? "items-end" : "items-start"}`}
+      {/* Sidebar */}
+      {isSidebarOpen && (
+        <div
+          className="w-[160px] bg-gray-900 border-r border-gray-700 flex flex-col"
+          style={{
+            height: "24rem",
+          }}
+        >
+          <div className="p-2 bg-gray-800 text-white text-xs font-bold text-center">
+            CANAUX
+          </div>
+          <button
+            type="button"
+            onClick={() => handleRoomChange(0)}
+            className={`w-full text-left px-3 py-2 text-sm relative ${
+              currentRoomId === 0
+                ? "bg-gray-700 text-white"
+                : "text-gray-300 hover:bg-gray-800"
+            }`}
           >
-            <div
-              className={`max-w-[85%] rounded-md px-3 py-2 ${
-                message.author.id === currentUser.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-white"
-              }`}
+            Général
+          </button>
+          <div className="p-2 bg-gray-800 text-white text-xs font-bold text-center">
+            QUÊTES
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700">
+            {availableRooms
+              .filter((room) => room.id !== 0)
+              .map((room) => (
+                <button
+                  type="button"
+                  key={room.id}
+                  onClick={() => handleRoomChange(room.id)}
+                  className={`w-full text-left px-3 py-2 text-sm relative ${
+                    currentRoomId === room.id
+                      ? "bg-gray-700 text-white"
+                      : "text-gray-300 hover:bg-gray-800"
+                  }`}
+                >
+                  <div className="truncate">{room.name}</div>
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chat area */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat header - draggable area */}
+        <div
+          className="bg-gray-800 px-4 py-2 flex justify-between items-center"
+          onMouseDown={handleMouseDown}
+          style={{ cursor: isDragging ? "grabbing" : "grab" }}
+        >
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="mr-2 text-gray-400 hover:text-white"
             >
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs">
-                  {message.author.pseudo}
-                </span>
-                <span className="text-xs opacity-70">
-                  {formatTime(message.createdAt)}
-                </span>
-              </div>
-              <p className="mt-1 text-sm break-words">{message.content}</p>
+              {isSidebarOpen ? (
+                <ChevronLeft size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </button>
+            <h3 className="text-white font-bold truncate max-w-[10rem]">
+              {availableRooms.find((room) => room.id === currentRoomId)?.name}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-xs text-gray-400">
+              {messages[currentRoomId]?.length || "0"} message
+              {messages[currentRoomId]?.length < 1 && "s"}
             </div>
           </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+        </div>
 
-      {/* Input area */}
-      <form
-        onSubmit={handleSendMessage}
-        className="p-2 bg-gray-900 flex items-center gap-2"
-      >
-        <input
-          type="text"
-          value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 bg-gray-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md"
-          disabled={!messageInput.trim()}
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
+          {messages[currentRoomId]?.map((message: Message) => (
+            <div
+              key={message.createdAt}
+              className={`flex flex-col ${message.author.id === currentUser.id ? "items-end" : "items-start"}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-md px-3 py-2 ${
+                  message.author.id === currentUser.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-700 text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-xs">
+                    {message.author.pseudo}
+                  </span>
+                  <span className="text-xs opacity-70">
+                    {formatTime(message.createdAt)}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm break-words">{message.content}</p>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input area */}
+        <form
+          onSubmit={handleSendMessage}
+          className="p-2 bg-gray-900 flex items-center gap-2"
         >
-          <Send size={16} />
-        </button>
-      </form>
+          <input
+            type="text"
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            placeholder={`Envoyer un message à ${
+              availableRooms.find((room) => room.id === currentRoomId)?.name
+            }`}
+            className="flex-1 bg-gray-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md"
+            disabled={!messageInput.trim()}
+          >
+            <Send size={16} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-// Helper function to format time from ISO string
 function formatTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });

@@ -32,6 +32,11 @@ export class Preloader extends Scene {
     this.load.image("town", "tilemaps/tiles/town.png");
     this.load.image("dungeon_tiles", "tilemaps/tiles/dungeon.png");
     this.load.tilemapTiledJSON("dungeon_map", "tilemaps/json/dungeon.json");
+
+    this.load.image("cozy_tiles", "tilemaps/tiles/cozy_city.png");
+    this.load.tilemapTiledJSON("cozy_map", "tilemaps/json/cozy_city.json");
+
+    this.load.image("kanojedo", "tilemaps/tiles/kanojedo.png");
   }
 
   create() {
@@ -39,6 +44,6 @@ export class Preloader extends Scene {
     //  For example, you can define global animations here, so we can use them in other scenes.
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-    this.scene.start("MainMenu");
+    this.scene.start("Town");
   }
 }

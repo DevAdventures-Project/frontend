@@ -14,8 +14,6 @@ export async function quitQuest(
     },
   });
 
-  console.log("response", response);
-
   if (!response.ok) {
     throw new Error("Error joining quest");
   }

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { WebSocketContext, socket } from "./contexts/WebSocketContext";
 import { EventBus } from "./game/EventBus";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
+import type { CozyCity } from "./game/scenes/CozyCity";
 import type { Dungeon } from "./game/scenes/Dungeon";
+import { Kanojedo } from "./game/scenes/Kanojedo";
 import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
 
@@ -10,7 +12,7 @@ export default function App() {
   const [canMoveSprite, setCanMoveSprite] = useState(true);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
-  const walkableScenes = ["Town", "Dungeon"];
+  const walkableScenes = ["Town", "Dungeon", "CozyCity", "Kanojedo"];
 
   const changeScene = () => {
     if (phaserRef.current) {
@@ -38,13 +40,13 @@ export default function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
 
-      let currentScene: Town | Dungeon | null = null;
+      let currentScene: Town | Dungeon | CozyCity | null = null;
 
       if (phaserRef.current.scene) {
         const sceneKey = phaserRef.current.scene.scene.key;
         if (!walkableScenes.includes(sceneKey)) return;
 
-        currentScene = phaserRef.current.scene as Town | Dungeon;
+        currentScene = phaserRef.current.scene as Town | Dungeon | CozyCity;
       }
 
       if (!currentScene || !currentScene.playerMovement) return;
@@ -70,13 +72,13 @@ export default function App() {
     const handleKeyUp = (event: KeyboardEvent) => {
       if (!phaserRef.current) return;
 
-      let currentScene: Town | Dungeon | null = null;
+      let currentScene: Town | Dungeon | CozyCity | null = null;
 
       if (phaserRef.current.scene) {
         const sceneKey = phaserRef.current.scene.scene.key;
         if (!walkableScenes.includes(sceneKey)) return;
 
-        currentScene = phaserRef.current.scene as Town | Dungeon;
+        currentScene = phaserRef.current.scene as Town | Dungeon | CozyCity;
       }
 
       if (!currentScene || !currentScene.playerMovement) return;

@@ -1,9 +1,7 @@
 "use client";
 
-import { WebSocketContext } from "@/contexts/WebSocketContext";
-import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import GameChat from "./GameChat";
 import Marketplace from "./Marketpace";
 import ChatToggleButton from "./ui/ChatToggle";
@@ -11,11 +9,11 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Toaster } from "./ui/sonner";
 
-export type ChatLayoutProps = {
-  room: string;
-};
+interface ChatLayoutProps {
+  user: { id: number | null; pseudo: string };
+}
 
-export default function ChatLayout({ room }: ChatLayoutProps) {
+export default function ChatLayout({ user }: ChatLayoutProps) {
   const [chatVisible, setChatVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMarketplaceOpen, setIsMarketplaceOpen] = useState(false);
