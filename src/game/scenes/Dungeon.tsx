@@ -178,7 +178,7 @@ export class Dungeon extends Scene implements MovableScene {
       dialogs: {
         npcName: npcName,
         messages: [
-          "Bienvenue dans le donjon BDDSM, tu veux voir ma grosse requête ?",
+          "Bienvenue dans le donjon BDDSM, veux tu voir mes quêtes ?",
         ],
         responses: [
           {
