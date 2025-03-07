@@ -1,6 +1,7 @@
 import ChatLayout from "@/components/ChatLayout";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { type MovableScene, Player } from "../Player";
@@ -37,7 +38,22 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Dungeon" />));
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <ChatLayout
+          user={
+            {
+              id: localStorage.getItem("userId")
+                ? Number.parseInt(localStorage.getItem("userId") as string)
+                : null,
+              pseudo: localStorage.getItem("pseudo"),
+            } as UserChat
+          }
+        />,
+      ),
+    );
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
