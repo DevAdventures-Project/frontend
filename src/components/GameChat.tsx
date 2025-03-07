@@ -1,36 +1,22 @@
 "use client";
 
 import type React from "react";
-
+import { WebSocketContext } from "@/contexts/WebSocketContext";
 import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
 import { ChevronLeft, ChevronRight, Send } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useContext } from "react";
+import { getQuestsChat } from "@/lib/api/getQuestsChat";
+import { getChatRooms } from "@/lib/api/getChatRooms";
+import { createQuestMessage } from "@/lib/api/createQuestMessage";
 
 interface GameChatProps {
   isVisible: boolean;
   currentUser: UserChat;
-  onSendMessage: (content: string, currentRoomId: number) => void;
-  messages: Record<number, Message[]>;
 }
 
-const availableRooms = [
-  { id: 0, name: "General" },
-  { id: 1, name: "Game" },
-  { id: 2, name: "Team" },
-  { id: 3, name: "Strategy" },
-  { id: 4, name: "Help & Support" },
-  { id: 5, name: "Off-Topic" },
-  { id: 6, name: "Announcements" },
-  { id: 7, name: "Bug Reports" },
-];
-
-export default function GameChat({
-  isVisible,
-  currentUser,
-  onSendMessage,
-  messages,
-}: GameChatProps) {
+export default function GameChat({ isVisible, currentUser }: GameChatProps) {
+  const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [messageInput, setMessageInput] = useState("");
   const [currentRoomId, setCurrentRoomId] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -39,8 +25,55 @@ export default function GameChat({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [availableRooms, setAvailableRooms] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const wsClient = useContext(WebSocketContext);
 
   useEffect(() => {
+    if (currentRoomId === 0) {
+      const handleMessage = (data: string) => {
+        const newMessage: Message = JSON.parse(data);
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          0: [...(prevMessages[0] || []), newMessage],
+        }));
+      };
+
+      wsClient.on("message", handleMessage);
+
+      return () => {
+        wsClient.off("message", handleMessage);
+      };
+    }
+  }, [currentRoomId, wsClient]);
+
+  const sendQuestMessage = (
+    content: string,
+    userId: number,
+    questId: number,
+  ) => {
+    createQuestMessage(content, userId, questId);
+    setMessages((prevMessages) => ({
+      ...prevMessages,
+      [questId]: [
+        ...(prevMessages[questId] || []),
+        {
+          content,
+          author: { id: userId, pseudo: currentUser.pseudo },
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    }));
+  };
+
+  useEffect(() => {
+    getQuestsChat().then((data) => {
+      setMessages(data);
+    });
+    getChatRooms().then((data) => {
+      setAvailableRooms(data);
+    });
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -49,7 +82,16 @@ export default function GameChat({
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim()) {
-      onSendMessage(messageInput, currentRoomId);
+      if (currentRoomId === 0) {
+        const newMessage: Message = {
+          content: messageInput,
+          author: currentUser,
+          createdAt: new Date().toISOString(),
+        };
+        wsClient.emit("message", JSON.stringify(newMessage));
+      } else {
+        sendQuestMessage(messageInput, currentUser.id, currentRoomId);
+      }
       setMessageInput("");
     }
   };
@@ -103,14 +145,14 @@ export default function GameChat({
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         cursor: isDragging ? "grabbing" : "auto",
-        width: isSidebarOpen ? "24rem" : "20rem",
+        width: isSidebarOpen ? "30rem" : "20rem",
         height: "24rem",
       }}
     >
       {/* Sidebar */}
       {isSidebarOpen && (
         <div
-          className="w-24 bg-gray-900 border-r border-gray-700 flex flex-col"
+          className="w-[160px] bg-gray-900 border-r border-gray-700 flex flex-col"
           style={{
             height: "24rem",
           }}
@@ -173,20 +215,21 @@ export default function GameChat({
                 <ChevronRight size={16} />
               )}
             </button>
-            <h3 className="text-white font-bold">
+            <h3 className="text-white font-bold truncate max-w-[10rem]">
               {availableRooms.find((room) => room.id === currentRoomId)?.name}
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-xs text-gray-400">
-              {messages[currentRoomId].length} messages
+              {messages[currentRoomId]?.length || "0"} message
+              {messages[currentRoomId]?.length < 1 && "s"}
             </div>
           </div>
         </div>
 
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
-          {messages[currentRoomId].map((message: Message) => (
+          {messages[currentRoomId]?.map((message: Message) => (
             <div
               key={message.createdAt}
               className={`flex flex-col ${message.author.id === currentUser.id ? "items-end" : "items-start"}`}
