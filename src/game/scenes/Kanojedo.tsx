@@ -39,7 +39,7 @@ export class Kanojedo extends Scene implements MovableScene {
   lastValidY: number;
 
   constructor() {
-    super("Kanojedo");
+    super("Scratch");
     this.tileWidth = 12;
     this.tileHeight = 12;
     this.lastValidX = 410;
@@ -84,8 +84,8 @@ export class Kanojedo extends Scene implements MovableScene {
   }
 
   create() {
-    this.Kanojedo = this.add.image(512, 384, "kanojedo").setDepth(0);
-    this.title = this.add.text(100, 100, "Kanojedo", {
+    this.Kanojedo = this.add.image(512, 384, "Scratch").setDepth(0);
+    this.title = this.add.text(100, 100, "Scratch", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
@@ -192,9 +192,9 @@ export class Kanojedo extends Scene implements MovableScene {
             },
           },
           {
-            text: "Créer une quête",
+            text: "Au revoir",
             action: () => {
-              this.showCreateQuest();
+              this.cleanupQuestUIs();
             },
           },
         ],
@@ -209,7 +209,11 @@ export class Kanojedo extends Scene implements MovableScene {
 
   showQuestList(): void {
     this.cleanupQuestUIs();
-    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom = this.add.dom(
+      850,
+      100,
+      reactToDom(<QuestList category="Scratch" />),
+    );
     this.questListDom.setDepth(1000);
   }
 

@@ -416,7 +416,7 @@
       ],
       "height": 40,
       "id": 1,
-      "name": "Dungeon",
+      "name": "Cobol",
       "opacity": 1,
       "type": "tilelayer",
       "visible": true,
@@ -570,7 +570,7 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "../png/dungeon.png"
+      "source": "../png/cobol.png"
     }
   ],
   "tilewidth": 12,
