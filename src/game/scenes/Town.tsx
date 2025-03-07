@@ -49,7 +49,6 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   private offsetX: number;
   private offsetY: number;
-  otherPlayers: Map<number, GameObjects.Sprite> = new Map();
 
   constructor() {
     super("Town");
