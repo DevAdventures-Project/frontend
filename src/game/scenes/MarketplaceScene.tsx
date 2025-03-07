@@ -8,14 +8,28 @@ export class MarketplaceScene extends Scene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<Marketplace />));
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <Marketplace
+          leaveScene={() => {
+            this.stopScene();
+          }}
+        />,
+      ),
+    );
+  }
+
+  stopScene() {
+    this.scene.stop();
   }
 
   create() {}
 
   update() {}
 
-  changeScene() {
-    this.scene.start("Town");
+  changeScene(prev: string) {
+    this.scene.start(prev);
   }
 }

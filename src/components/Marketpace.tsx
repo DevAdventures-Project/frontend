@@ -19,7 +19,12 @@ interface Item {
   purchased: boolean;
 }
 
-export default function Marketplace() {
+interface MarkplaceProps {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  leaveScene: any;
+}
+
+export default function Marketplace({ leaveScene }: MarkplaceProps) {
   const [user, setUser] = useState<User>({ id: -1, pseudo: "", coins: -1 });
 
   useEffect(() => {
@@ -112,6 +117,7 @@ export default function Marketplace() {
           <div className="flex justify-between items-center">
             <button
               type="button"
+              onClick={leaveScene}
               className="bg-amber-950 text-white border-2 border-amber-200 p-2 cursor-pointer"
             >
               quitter
