@@ -1,7 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import LeaderBoard from "@/components/LeaderBoard";
-import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
@@ -80,7 +79,6 @@ export class Town extends Scene implements MovableScene {
         />,
       ),
     );
-    this.add.dom(0, 0, reactToDom(<LoginLayout />));
     this.addLeaderboardButton();
 
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {

@@ -1,3 +1,4 @@
+import Login from "@/components/Login";
 import { useEffect, useRef, useState } from "react";
 import { WebSocketContext, socket } from "./contexts/WebSocketContext";
 import { EventBus } from "./game/EventBus";
@@ -84,25 +85,25 @@ export default function App() {
   }, []);
 
   const currentScene = (scene: Phaser.Scene) => {
-    setCanMoveSprite(scene.scene.key !== "MainMenu");
+    setCanMoveSprite(scene.scene.key !== "Town");
   };
 
-  return (
+  const userToken = localStorage.getItem("accessToken");
+  const [loggedIn, setLoggedIn] = useState<boolean>(!!userToken);
+
+  function handleUserLogin() {
+    setLoggedIn(true);
+  }
+
+  console.log("rerender");
+
+  return localStorage.getItem("accessToken") ? (
     <div id="app">
       <WebSocketContext.Provider value={socket}>
         <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-        <div>
-          <div>
-            <button className="button" type="button">
-              Change Scene
-            </button>
-          </div>
-          <div className="spritePosition">
-            Sprite Position:
-            <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-          </div>
-        </div>
       </WebSocketContext.Provider>
     </div>
+  ) : (
+    <Login handleUserLogin={handleUserLogin} />
   );
 }
