@@ -13,12 +13,26 @@ import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
+// Configuration pour chaque portail
+interface PortalConfig {
+  x: number;
+  y: number;
+  target: string;
+}
+
+// Structure interne pour stocker un portail créé
+interface Portal {
+  portal: GameObjects.Image;
+  collider: Phaser.Geom.Circle;
+  target: string;
+}
+
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
-  portal: GameObjects.Image;
-  portalCollider: Phaser.Geom.Circle;
+  // Portails créés
+  portals: Portal[] = [];
   npcCollider: Phaser.Geom.Circle;
   playerCollider: Phaser.Geom.Circle;
   isOverlapping = false;
@@ -27,7 +41,7 @@ export class Town extends Scene implements MovableScene {
   playerMovement: Player;
   dialogManager: DialogManager;
   wizardNpc: Npc;
-  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null;
+  private leaderboardDom: GameObjects.DOMElement | null = null;
   questListDom: GameObjects.DOMElement | null = null;
   createQuestDom: GameObjects.DOMElement | null = null;
   tileWidth: number;
@@ -50,49 +64,43 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
+    // Ajout des layouts
     this.add.dom(
-      0,
-      0,
-      reactToDom(
-        <ChatLayout
-          user={
-            {
-              id: localStorage.getItem("userId")
-                ? Number.parseInt(localStorage.getItem("userId") as string)
-                : null,
-              pseudo: localStorage.getItem("pseudo"),
-            } as UserChat
-          }
-        />,
-      ),
+        0,
+        0,
+        reactToDom(
+            <ChatLayout
+                user={
+                  {
+                    id: localStorage.getItem("userId")
+                        ? Number.parseInt(localStorage.getItem("userId") as string)
+                        : null,
+                    pseudo: localStorage.getItem("pseudo"),
+                  } as UserChat
+                }
+            />,
+        ),
     );
     this.add.dom(0, 0, reactToDom(<LoginLayout />));
-
     this.addLeaderboardButton();
+
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
     });
-
-    this.load.spritesheet(
-      "player-idle",
-      "assets/npc/Knight/Idle/Idle-Sheet.png",
-      {
-        frameWidth: 32,
-        frameHeight: 32,
-      },
-    );
-    this.load.spritesheet(
-      "npc-idle",
-      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
-      {
-        frameWidth: 32,
-        frameHeight: 32,
-      },
-    );
+    this.load.spritesheet("player-idle", "assets/npc/Knight/Idle/Idle-Sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("npc-idle", "assets/npc/Wizzard/Idle/Idle-Sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
+    // Chargez l'image du portail (assurez-vous que le chemin est correct)
+    this.load.image("portal", "assets/tilemaps/tiles/portal.png");
   }
 
   create() {
@@ -106,21 +114,14 @@ export class Town extends Scene implements MovableScene {
       align: "center",
     });
 
+    // Calculer les offsets pour centrer le calque d'obstacles dans une fenêtre de 1024x768
     const mapWidthInTiles = 70;
-    const mapHeightInTiles = Math.floor(
-      this.obstacles.length / mapWidthInTiles,
-    );
-    const { offsetX, offsetY } = calculateOffsets(
-      1024,
-      768,
-      mapWidthInTiles,
-      mapHeightInTiles,
-      this.tileWidth,
-      this.tileHeight,
-    );
+    const mapHeightInTiles = Math.floor(this.obstacles.length / mapWidthInTiles);
+    const { offsetX, offsetY } = calculateOffsets(1024, 768, mapWidthInTiles, mapHeightInTiles, this.tileWidth, this.tileHeight);
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
+    // Affichage des obstacles en mode debug
     this.debugDot = this.add.graphics();
     this.obstaclesDebugGraphics = this.add.graphics();
     for (let i = 0; i < this.obstacles.length; i++) {
@@ -134,48 +135,47 @@ export class Town extends Scene implements MovableScene {
       }
     }
 
-    this.portal = this.add.image(730, 352, "portal");
-    this.portal.setScale(0.1);
+    // Configuration des portails
+    const portalConfigs: PortalConfig[] = [
+      { x: 730, y: 352, target: "Dungeon" },
+      { x: 470, y: 302, target: "CozyCity" },
+      { x: 540, y: 482, target: "Kanojedo" },
+    ];
 
+    // Créer et animer les portails
+    portalConfigs.forEach((config) => {
+      const p = this.add.image(config.x, config.y, "portal");
+      p.setScale(0.1);
+      p.setDepth(1);
+      const collider = new Phaser.Geom.Circle(p.x, p.y, this.portalRadius);
+      this.portals.push({ portal: p, collider, target: config.target });
+      this.tweens.add({
+        targets: p,
+        scale: 0.15,
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+    });
+
+    // Création du joueur
     this.player = this.add.sprite(410, 402, "player-run");
     this.lastValidX = this.player.x;
     this.lastValidY = this.player.y;
-
     this.player.setOrigin(0.5, 0.5);
-    this.playerCollider = new Phaser.Geom.Circle(
-      this.player.x,
-      this.player.y,
-      this.playerRadius,
-    );
-    this.portalCollider = new Phaser.Geom.Circle(
-      this.portal.x,
-      this.portal.y,
-      this.portalRadius,
-    );
-
+    this.player.setDepth(2);
+    this.playerCollider = new Phaser.Geom.Circle(this.player.x, this.player.y, this.playerRadius);
+    // Création des animations
     this.createAnimations();
-
     this.player.setOrigin(0.5, 1);
 
-    this.tweens.add({
-      targets: this.portal,
-      scale: 0.15,
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
-
     this.dialogManager = new DialogManager(this);
-
-    EventBus.on(
-      "get-dialog-manager",
-      (callback: (dialogManager: DialogManager) => void) => {
-        if (typeof callback === "function") {
-          callback(this.dialogManager);
-        }
-      },
-    );
+    EventBus.on("get-dialog-manager", (callback: (dialogManager: DialogManager) => void) => {
+      if (typeof callback === "function") {
+        callback(this.dialogManager);
+      }
+    });
 
     const npcName = "M. Sananes";
     this.wizardNpc = new Npc(this, {
@@ -193,20 +193,15 @@ export class Town extends Scene implements MovableScene {
         responses: [
           {
             text: "Voir les quêtes",
-            action: () => {
-              this.showQuestList();
-            },
+            action: () => { this.showQuestList(); },
           },
           {
             text: "Créer une quête",
-            action: () => {
-              this.showCreateQuest();
-            },
+            action: () => { this.showCreateQuest(); },
           },
         ],
       },
     });
-
     this.npcCollider = this.wizardNpc.getCollider();
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
@@ -214,13 +209,8 @@ export class Town extends Scene implements MovableScene {
 
   addLeaderboardButton(): void {
     const gameHeight = this.sys.game.canvas.height;
-
-    this.leaderboardDom = this.add.dom(
-      300,
-      gameHeight,
-      reactToDom(<LeaderBoard />),
-    );
-    this.leaderboardDom.setDepth(1000);
+    const leaderboardDom = this.add.dom(300, gameHeight, reactToDom(<LeaderBoard />));
+    leaderboardDom.setDepth(1000);
   }
 
   showQuestList(): void {
@@ -246,22 +236,20 @@ export class Town extends Scene implements MovableScene {
     }
   }
 
+  checkPortalCollision(): void {
+    this.checkPortalCollisions();
+  }
+
   createAnimations(): void {
     this.anims.create({
       key: "run",
-      frames: this.anims.generateFrameNumbers("player-run", {
-        start: 0,
-        end: 5,
-      }),
+      frames: this.anims.generateFrameNumbers("player-run", { start: 0, end: 5 }),
       frameRate: 10,
       repeat: -1,
     });
     this.anims.create({
       key: "idle",
-      frames: this.anims.generateFrameNumbers("player-idle", {
-        start: 0,
-        end: 3,
-      }),
+      frames: this.anims.generateFrameNumbers("player-idle", { start: 0, end: 3 }),
       frameRate: 10,
       repeat: -1,
     });
@@ -280,42 +268,27 @@ export class Town extends Scene implements MovableScene {
     }
   }
 
-  checkNpcCollision() {
-    const isColliding = Phaser.Geom.Intersects.CircleToCircle(
-      this.playerCollider,
-      this.npcCollider,
-    );
-    if (isColliding && !this.isOverlapping) {
-      this.isOverlapping = true;
-    } else if (!isColliding && this.isOverlapping) {
-      this.isOverlapping = false;
+  // Vérifie la collision du joueur avec chaque portail
+  checkPortalCollisions() {
+    for (const p of this.portals) {
+      if (Phaser.Geom.Intersects.CircleToCircle(this.playerCollider, p.collider)) {
+        this.activatePortal(p.target, p.portal);
+        break; // Un seul portail actif à la fois
+      }
     }
   }
 
-  checkPortalCollision() {
-    const isColliding = Phaser.Geom.Intersects.CircleToCircle(
-      this.playerCollider,
-      this.portalCollider,
-    );
-    if (isColliding && !this.isOverlapping) {
-      this.isOverlapping = true;
-      this.activatePortal();
-    } else if (!isColliding && this.isOverlapping) {
-      this.isOverlapping = false;
-    }
-  }
-
-  activatePortal() {
+  activatePortal(target: string, portal: GameObjects.Image) {
     if (this.dialogManager.isActive()) return;
     socket.emit("leaveRooms");
-    socket.emit("joinRoom", "MAP1");
+    socket.emit("joinRoom", target);
     this.tweens.add({
-      targets: this.portal,
+      targets: portal,
       scale: 0.2,
       alpha: 0,
       duration: 500,
       onComplete: () => {
-        this.changeScene();
+        this.changeScene(target);
       },
     });
     this.cameras.main.flash(500, 255, 255, 255);
@@ -323,8 +296,7 @@ export class Town extends Scene implements MovableScene {
 
   update() {
     this.updatePlayerCollider();
-    this.checkPortalCollision();
-    this.checkNpcCollision();
+    this.checkPortalCollisions();
     this.playerMovement.update();
     this.wizardNpc.update(this.playerCollider);
 
@@ -339,12 +311,12 @@ export class Town extends Scene implements MovableScene {
     if (this.debugDot) {
       this.debugDot.clear();
       const { tileX, tileY } = getTileCoordinates(
-        this.player.x,
-        this.player.y,
-        this.tileWidth,
-        this.tileHeight,
-        this.offsetX,
-        this.offsetY,
+          this.player.x,
+          this.player.y,
+          this.tileWidth,
+          this.tileHeight,
+          this.offsetX,
+          this.offsetY,
       );
       const dotX = this.offsetX + tileX * this.tileWidth + this.tileWidth / 2;
       const dotY = this.offsetY + tileY * this.tileHeight + this.tileHeight / 2;
@@ -353,27 +325,27 @@ export class Town extends Scene implements MovableScene {
     }
   }
 
-  changeScene() {
+  changeScene(target: string) {
     this.cleanupQuestUIs();
-    this.scene.start("Dungeon");
+    this.scene.start(target);
   }
 
   isPositionBlocked(x: number, y: number): boolean {
     const mapWidthInTiles = 70;
     const mapHeightInTiles = this.obstacles.length / mapWidthInTiles;
     const { tileX, tileY } = getTileCoordinates(
-      x,
-      y,
-      this.tileWidth,
-      this.tileHeight,
-      this.offsetX,
-      this.offsetY,
+        x,
+        y,
+        this.tileWidth,
+        this.tileHeight,
+        this.offsetX,
+        this.offsetY,
     );
     if (
-      tileX < 0 ||
-      tileY < 0 ||
-      tileX >= mapWidthInTiles ||
-      tileY >= mapHeightInTiles
+        tileX < 0 ||
+        tileY < 0 ||
+        tileX >= mapWidthInTiles ||
+        tileY >= mapHeightInTiles
     ) {
       return true;
     }
