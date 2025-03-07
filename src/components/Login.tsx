@@ -21,6 +21,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { socket } from "@/contexts/WebSocketContext";
 import { login } from "@/lib/api/login";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -33,7 +34,7 @@ const formSchema = z.object({
 });
 
 interface LoginProps {
-  loggedIn: boolean;
+  handleUserLogin: () => void;
 }
 
 const LoginPreview = (props: LoginProps) => {
@@ -45,6 +46,8 @@ const LoginPreview = (props: LoginProps) => {
     },
   });
 
+  const [loggedIn, setLoggedIn] = useState(false);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const success = await login(values.email, values.password);
@@ -53,6 +56,7 @@ const LoginPreview = (props: LoginProps) => {
       localStorage.setItem("userId", success.id.toString());
       localStorage.setItem("pseudo", success.pseudo);
 
+      setLoggedIn(true);
       const maskDiv = document.getElementById("masker");
       maskDiv?.classList.add("hidden");
     } catch (error) {
@@ -60,7 +64,8 @@ const LoginPreview = (props: LoginProps) => {
     }
   }
 
-  if (props.loggedIn) {
+
+  if (loggedIn) {
     socket.emit(
       "register",
       JSON.stringify({
@@ -70,9 +75,10 @@ const LoginPreview = (props: LoginProps) => {
         y: 390,
       }),
     );
+    props.handleUserLogin();
   }
 
-  return props.loggedIn ? null : (
+  return (
     <div
       id="masker"
       className={"relative w-[1024px] h-[768px] overflow-hidden bg-black"}

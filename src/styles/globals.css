@@ -331,3 +331,34 @@ body {
 .dialog-content::after {
   display: none !important;
 }
+
+/* Add pixel status style */
+.pixel-status {
+  position: relative;
+  font-family: "Press Start 2P", monospace;
+  font-size: 6px;
+  line-height: 1;
+  letter-spacing: 0;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  image-rendering: pixelated;
+}
+
+.pixel-status::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.pixel-status::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.3);
+}

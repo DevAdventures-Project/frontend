@@ -1,8 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import LeaderBoard from "@/components/LeaderBoard";
-import LoginLayout from "@/components/LoginLayout";
-import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { OtherPlayer } from "@/models/OtherPlayer";
@@ -51,6 +49,7 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   private offsetX: number;
   private offsetY: number;
+  otherPlayers: Map<number, GameObjects.Sprite> = new Map();
 
   constructor() {
     super("Town");
@@ -76,13 +75,12 @@ export class Town extends Scene implements MovableScene {
               pseudo: localStorage.getItem("pseudo"),
             } as UserChat
           }
-          changeScene={() => {
-            this.scene.launch("MarketplaceScene");
+          changeScene={(target: string) => {
+            this.scene.launch(target);
           }}
         />,
       ),
     );
-    this.add.dom(0, 0, reactToDom(<LoginLayout />));
     this.addLeaderboardButton();
 
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
@@ -118,6 +116,8 @@ export class Town extends Scene implements MovableScene {
   }
 
   create() {
+    socket.emit("getOtherPlayers");
+
     socket.on("otherPlayers", (data) => {
       const otherPlayers = JSON.parse(data).map((player: string) =>
         JSON.parse(player),
@@ -127,10 +127,12 @@ export class Town extends Scene implements MovableScene {
         this.newOtherPlayer(player);
       });
     });
+
     socket.on("joinedRoom", (data) => {
       const player: OtherPlayer = JSON.parse(data);
       this.newOtherPlayer(player);
     });
+
     socket.on("leftRoom", (data) => {
       if (!data || data === null) return;
 
@@ -142,16 +144,19 @@ export class Town extends Scene implements MovableScene {
         this.otherPlayers.delete(player.id);
       }
     });
+
     socket.on("leftRooms", (data) => {
       if (!data || data === null) return;
       const player: OtherPlayer = JSON.parse(data);
       this.otherPlayers.get(player.id)?.destroy();
       this.otherPlayers.delete(player.id);
     });
+
     socket.on("position", (data) => {
       const player: OtherPlayer = JSON.parse(data);
       this.updateOtherPlayerPosition(player);
     });
+
     socket.emit("getOtherPlayers");
 
     this.town = this.add.image(512, 384, "town").setDepth(0);
@@ -283,6 +288,12 @@ export class Town extends Scene implements MovableScene {
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
   }
+  updateOtherPlayerPosition(player: OtherPlayer) {
+    return;
+  }
+  newOtherPlayer(player: OtherPlayer) {
+    return;
+  }
 
   addLeaderboardButton(): void {
     const gameHeight = this.sys.game.canvas.height;
@@ -399,7 +410,15 @@ export class Town extends Scene implements MovableScene {
   }
 
   changeScene(target: string) {
+    this.otherPlayers.forEach((otherPlayer, id) => {
+      otherPlayer.destroy();
+      this.otherPlayers.delete(id);
+    });
+
     this.cleanupQuestUIs();
+
+    socket.emit("leaveRooms");
+
     this.scene.start(target);
   }
 

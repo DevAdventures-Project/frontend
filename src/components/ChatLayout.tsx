@@ -24,12 +24,26 @@ export default function ChatLayout({ user, changeScene }: ChatLayoutProps) {
       <GameChat isVisible={chatVisible} currentUser={user as UserChat} />
 
       <button
-        onClick={changeScene}
+        onClick={() => changeScene("MarketplaceScene")}
         type="button"
         className="cursor-pointer w-24 h-24 flex justify-center items-center border-6 border-b-gray-900 rounded-2xl bg-orange-200 shadow-md"
       >
         <Image
           src="/assets/icons/market.png"
+          alt="Icon"
+          width={60}
+          height={60}
+          className="object-contain"
+        />
+      </button>
+
+      <button
+        onClick={() => changeScene("ProfileScene")}
+        type="button"
+        className="cursor-pointer w-24 h-24 flex justify-center items-center border-6 border-b-gray-900 rounded-2xl bg-orange-200 shadow-md"
+      >
+        <Image
+          src="/assets/icons/profile.png"
           alt="Icon"
           width={60}
           height={60}
