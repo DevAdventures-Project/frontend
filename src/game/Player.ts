@@ -1,5 +1,6 @@
 import type { GameObjects, Scene } from "phaser";
 import { EventBus } from "./EventBus";
+import { socket } from "@/contexts/WebSocketContext";
 
 // On étend l'interface MovableScene pour inclure les propriétés de la grille.
 export interface MovableScene {
@@ -118,6 +119,7 @@ export class Player {
     }
 
     // Mise à jour de la position si le déplacement est valide.
+    socket.emit("position", JSON.stringify({ x, y }));
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
     this.scene.updatePlayerCollider();

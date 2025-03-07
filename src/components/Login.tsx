@@ -22,6 +22,7 @@ import { login } from "@/lib/api/login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { socket } from "@/contexts/WebSocketContext";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -59,6 +60,15 @@ const LoginPreview = (props: LoginProps) => {
     }
   }
 
+  if(props.loggedIn) {
+    socket.emit("register", JSON.stringify({
+      id: localStorage.getItem("userId"),
+      pseudo: localStorage.getItem("pseudo"),
+      x: 410,
+      y: 390,
+    }));
+  }
+  
   return props.loggedIn ? null : (
     <div
       id="masker"

@@ -18,6 +18,7 @@ export class Dungeon extends Scene implements MovableScene {
   map: Tilemaps.Tilemap;
   collisionLayer: Phaser.Tilemaps.TilemapLayer;
   portal: GameObjects.Image;
+  otherPlayersPositions = new Map<number, { x: number; y: number }>();
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;

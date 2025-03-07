@@ -12,12 +12,15 @@ import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
+import { OtherPlayer } from "@/models/OtherPlayer";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
   portal: GameObjects.Image;
+  otherPlayers = new Map<number, GameObjects.Sprite>();
+  otherPlayersPositions = new Map<number, { x: number; y: number }>();
   portalCollider: Phaser.Geom.Circle;
   npcCollider: Phaser.Geom.Circle;
   playerCollider: Phaser.Geom.Circle;
@@ -96,6 +99,32 @@ export class Town extends Scene implements MovableScene {
   }
 
   create() {
+
+    socket.on("otherPlayers", data => {
+      const otherPlayers = JSON.parse(data).map(((player: string) => JSON.parse(player)));
+      this.otherPlayers.clear();
+      otherPlayers.forEach((player: OtherPlayer) => {
+        this.newOtherPlayer(player);
+      });
+    })
+    socket.on("joinedRoom", (data) => {
+      let player: OtherPlayer = JSON.parse(data);
+      this.newOtherPlayer(player);
+    })
+    socket.on("leftRoom", (data) => {
+      if(!data || data === null) return;
+      let player: OtherPlayer = JSON.parse(data);
+      this.otherPlayers.get(player.id)?.destroy();
+      this.otherPlayers.delete(player.id);
+    })
+    socket.on("leftRooms", (data) => {
+      if(!data || data === null) return;
+      let player: OtherPlayer = JSON.parse(data);
+      this.otherPlayers.get(player.id)?.destroy();
+      this.otherPlayers.delete(player.id);
+    })
+    socket.emit("getOtherPlayers");
+
     this.town = this.add.image(512, 384, "town").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
@@ -378,6 +407,18 @@ export class Town extends Scene implements MovableScene {
     }
     const index = tileY * mapWidthInTiles + tileX;
     return this.obstacles[index] !== 0;
+  }
+
+  newOtherPlayer(player: OtherPlayer) {
+
+    console.log("newOtherPlayer",typeof player, player, player.x, player.y);
+    const otherPlayer = this.add.sprite(player.x, player.y, "player-idle");
+    otherPlayer.setOrigin(0.5, 1);
+    otherPlayer.setDepth(10);
+    otherPlayer.anims.play("player-idle", true)
+    this.otherPlayers.set(player.id, otherPlayer);
+    this.otherPlayersPositions.set(player.id, { x: player.x, y: player.y });
+    EventBus.emit("other-player-added", player);
   }
 
   obstacles = [
