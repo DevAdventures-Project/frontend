@@ -14,8 +14,12 @@ export default function LeaderBoard() {
 
   useEffect(() => {
     async function fetchRankings() {
-      const users = await getRankings();
-      setUsers(users);
+      try {
+        const users = await getRankings();
+        setUsers(users);
+      } catch (e) {
+        console.log(e);
+      }
     }
     fetchRankings();
   }, []);

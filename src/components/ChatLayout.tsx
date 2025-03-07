@@ -7,9 +7,9 @@ import { useContext, useState } from "react";
 import GameChat from "./GameChat";
 import Marketplace from "./Marketpace";
 import ChatToggleButton from "./ui/ChatToggle";
+import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Toaster } from "./ui/sonner";
-import { Button } from "./ui/button";
 
 export type ChatLayoutProps = {
   room: string;
@@ -58,21 +58,18 @@ export default function ChatLayout({ room }: ChatLayoutProps) {
         toggleVisibility={toggleChatVisibility}
       />
 
-  <Dialog open={isMarketplaceOpen} onOpenChange={setIsMarketplaceOpen}>
+      <Dialog open={isMarketplaceOpen} onOpenChange={setIsMarketplaceOpen}>
         <DialogTrigger asChild>
-        <Button className="pixel-button bg-pokemon-red hover:bg-pokemon-red-dark text-white text-lg px-6 py-3">
+          <Button className="pixel-button bg-pokemon-red hover:bg-pokemon-red-dark text-white text-lg px-6 py-3">
             Marché
           </Button>
-        </DialogTrigger> 
+        </DialogTrigger>
         <DialogContent>
           <Marketplace />
         </DialogContent>
-  </Dialog>
+      </Dialog>
 
-
-
-  <Toaster />
-
+      <Toaster />
     </div>
   );
 }
