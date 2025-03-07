@@ -3,6 +3,7 @@ import CreateQuest from "@/components/CreateQuest";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { OtherPlayer } from "@/models/OtherPlayer";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { DialogManager } from "../DialogManager";
