@@ -4,6 +4,7 @@ import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
+import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
@@ -13,6 +14,7 @@ export class Dungeon extends Scene implements MovableScene {
   player: GameObjects.Sprite;
   map: Tilemaps.Tilemap;
   collisionLayer: Phaser.Tilemaps.TilemapLayer;
+  npcCollider: Phaser.Geom.Circle;
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
@@ -22,6 +24,7 @@ export class Dungeon extends Scene implements MovableScene {
   playerMovement: Player;
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
+  wizardNpc: Npc;
 
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
@@ -496,11 +499,10 @@ export class Dungeon extends Scene implements MovableScene {
         this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
         this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
       }
-    }*/
 
     // Création du portail
-    this.portal = this.add.image(770, 280, "portal");
-    this.portal.setScale(0.1);
+    this.portal = this.add.image(770, 290, "portal");
+    this.portal.setScale(0.2);
     this.portal.setDepth(1);
 
     // Création du joueur
@@ -552,6 +554,38 @@ export class Dungeon extends Scene implements MovableScene {
       ease: "Sine.easeInOut",
     });
 
+    const npcName = "M. Noled";
+    this.wizardNpc = new Npc(this, {
+      name: npcName,
+      x: 350,
+      y: 300,
+      texture: "npc-idle",
+      animation: "npc-idle",
+      interactionRadius: 50,
+      dialogs: {
+        npcName: npcName,
+        messages: [
+          "Bienvenue dans le donjon BDDSM, tu veux voir ma grosse requête ?",
+        ],
+        responses: [
+          {
+            text: "Voir les quêtes",
+            action: () => {
+              // this.showQuestList();
+            },
+          },
+          {
+            text: "Créer une quête",
+            action: () => {
+              // this.showCreateQuest();
+            },
+          },
+        ],
+      },
+    });
+
+    this.playerCollider = this.wizardNpc.getCollider();
+
     // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
@@ -598,7 +632,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("Town");
+    this.scene.start("CozyCity");
   }
 
   // Implémente isPositionBlocked pour la grille Dungeon.
