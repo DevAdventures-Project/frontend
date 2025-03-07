@@ -50,6 +50,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   preload() {
+    socket.emit("joinRoom", "Cobol");
     this.add.dom(
       0,
       0,
@@ -278,7 +279,6 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   activatePortal(target: string, portal: GameObjects.Image): void {
-    socket.emit("leaveRooms");
     socket.emit("joinRoom", target);
     this.tweens.add({
       targets: portal,
@@ -308,6 +308,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   changeScene(scene: string): void {
+    socket.emit("leaveRoom", "Cobol");
     this.cleanupQuestUIs();
     this.scene.start(scene);
   }

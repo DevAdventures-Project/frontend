@@ -1,7 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import QuestList from "@/components/QuestList";
-import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
@@ -10,6 +9,7 @@ import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
+import { socket } from "@/contexts/WebSocketContext";
 
 export class CozyCity extends Scene implements MovableScene {
   CozyCity: GameObjects.Image;
@@ -46,6 +46,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   preload() {
+    socket.emit("joinRoom", "Javascript");
     this.add.dom(
       0,
       0,
@@ -220,7 +221,6 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   activatePortal() {
-    socket.emit("leaveRooms");
     socket.emit("joinRoom", "HUB");
     this.tweens.add({
       targets: this.portal,
@@ -250,6 +250,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   changeScene() {
+    socket.emit("leaveRoom", "Javascript");
     this.scene.start("Town");
   }
 
