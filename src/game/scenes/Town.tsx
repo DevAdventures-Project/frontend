@@ -1,7 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import LeaderBoard from "@/components/LeaderBoard";
-import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { OtherPlayer } from "@/models/OtherPlayer";
@@ -49,6 +48,7 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   private offsetX: number;
   private offsetY: number;
+  otherPlayers: Map<number, GameObjects.Sprite> = new Map();
 
   constructor() {
     super("Town");
@@ -279,6 +279,12 @@ export class Town extends Scene implements MovableScene {
     this.npcCollider = this.wizardNpc.getCollider();
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
+  }
+  updateOtherPlayerPosition(player: OtherPlayer) {
+    return;
+  }
+  newOtherPlayer(player: OtherPlayer) {
+    return;
   }
 
   addLeaderboardButton(): void {
