@@ -1,3 +1,4 @@
+import { socket } from "@/contexts/WebSocketContext";
 import type { GameObjects, Scene } from "phaser";
 import { EventBus } from "./EventBus";
 

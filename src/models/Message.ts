@@ -7,7 +7,6 @@ export interface Message {
 }
 
 export interface QuestMessage extends Message {
-  id: number;
   quest: {
     id: number;
     title: string;
