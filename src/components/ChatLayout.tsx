@@ -5,7 +5,11 @@ import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
 import { useContext, useState } from "react";
 import GameChat from "./GameChat";
+import Marketplace from "./Marketpace";
 import ChatToggleButton from "./ui/ChatToggle";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Toaster } from "./ui/sonner";
+import { Button } from "./ui/button";
 
 export type ChatLayoutProps = {
   room: string;
@@ -14,6 +18,7 @@ export type ChatLayoutProps = {
 export default function ChatLayout({ room }: ChatLayoutProps) {
   const [chatVisible, setChatVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isMarketplaceOpen, setIsMarketplaceOpen] = useState(false);
   const wsClient = useContext(WebSocketContext);
   const currentUser: UserChat = {
     id: 1,
@@ -39,7 +44,7 @@ export default function ChatLayout({ room }: ChatLayoutProps) {
   };
 
   return (
-    <div className="relative w-[1024px] h-[768px] overflow-hidden">
+    <div className="rellative w-[1024px] h-[768px] overflow-hidden">
       <GameChat
         isVisible={chatVisible}
         currentUser={currentUser}
@@ -52,6 +57,22 @@ export default function ChatLayout({ room }: ChatLayoutProps) {
         isVisible={chatVisible}
         toggleVisibility={toggleChatVisibility}
       />
+
+  <Dialog open={isMarketplaceOpen} onOpenChange={setIsMarketplaceOpen}>
+        <DialogTrigger asChild>
+        <Button className="pixel-button bg-pokemon-red hover:bg-pokemon-red-dark text-white text-lg px-6 py-3">
+            Marché
+          </Button>
+        </DialogTrigger> 
+        <DialogContent>
+          <Marketplace />
+        </DialogContent>
+  </Dialog>
+
+
+
+  <Toaster />
+
     </div>
   );
 }

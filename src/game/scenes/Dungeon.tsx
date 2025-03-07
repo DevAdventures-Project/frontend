@@ -37,7 +37,6 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Dungeon" />));
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -134,6 +133,8 @@ export class Dungeon extends Scene implements MovableScene {
     // Initialisation du mouvement du joueur avec la logique de grid
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
+
+    this.add.dom(0, 0, reactToDom(<ChatLayout room="Dungeon" />));
   }
 
   updatePlayerCollider() {
