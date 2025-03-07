@@ -1,7 +1,9 @@
 "use client";
 
+import { WebSocketContext } from "@/contexts/WebSocketContext";
+import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import GameChat from "./GameChat";
 import Marketplace from "./Marketpace";
 import ChatToggleButton from "./ui/ChatToggle";
@@ -43,13 +45,7 @@ export default function ChatLayout({ user }: ChatLayoutProps) {
 
   return (
     <div className="rellative w-[1024px] h-[768px] overflow-hidden">
-      <GameChat
-        isVisible={chatVisible}
-        currentUser={currentUser}
-        room={room}
-        onSendMessage={handleSendMessage}
-        messages={messages}
-      />
+      <GameChat isVisible={chatVisible} currentUser={currentUser} />
 
       <ChatToggleButton
         isVisible={chatVisible}
@@ -62,7 +58,7 @@ export default function ChatLayout({ user }: ChatLayoutProps) {
             Marché
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="m-auto">
           <Marketplace />
         </DialogContent>
       </Dialog>
