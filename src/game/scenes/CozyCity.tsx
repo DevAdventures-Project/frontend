@@ -46,6 +46,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   preload() {
+    socket.emit("joinRoom", "Javascript");
     this.add.dom(
       0,
       0,
@@ -220,7 +221,6 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   activatePortal() {
-    socket.emit("leaveRooms");
     socket.emit("joinRoom", "HUB");
     this.tweens.add({
       targets: this.portal,
@@ -250,6 +250,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   changeScene() {
+    socket.emit("leaveRoom", "Javascript");
     this.scene.start("Town");
   }
 

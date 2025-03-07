@@ -49,6 +49,7 @@ export class Kanojedo extends Scene implements MovableScene {
   }
 
   preload() {
+    socket.emit("joinRoom", "Scratch");
     this.add.dom(
       0,
       0,
@@ -254,7 +255,6 @@ export class Kanojedo extends Scene implements MovableScene {
   }
 
   activatePortal() {
-    socket.emit("leaveRooms");
     socket.emit("joinRoom", "HUB");
     this.tweens.add({
       targets: this.portal,
@@ -284,6 +284,7 @@ export class Kanojedo extends Scene implements MovableScene {
   }
 
   changeScene() {
+    socket.emit("leaveRoom", "Scratch");
     this.scene.start("Town");
   }
 

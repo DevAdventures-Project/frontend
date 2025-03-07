@@ -31,6 +31,7 @@ export class Town extends Scene implements MovableScene {
   textetp2: GameObjects.Text;
   textetp3: GameObjects.Text;
   player: GameObjects.Sprite;
+  otherPlayers = new Map<number, GameObjects.Sprite>();
   portals: Portal[] = [];
   npcCollider: Phaser.Geom.Circle;
   playerCollider: Phaser.Geom.Circle;
@@ -48,7 +49,6 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   private offsetX: number;
   private offsetY: number;
-  otherPlayers: Map<number, GameObjects.Sprite> = new Map();
 
   constructor() {
     super("Town");
@@ -94,6 +94,12 @@ export class Town extends Scene implements MovableScene {
         frameHeight: 32,
       },
     );
+
+    this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+
     this.load.spritesheet(
       "npc-idle",
       "assets/npc/Wizzard/Idle/Idle-Sheet.png",
@@ -237,6 +243,7 @@ export class Town extends Scene implements MovableScene {
       this.playerRadius,
     );
     this.createAnimations();
+    this.player.anims.play("idle", true);
     this.player.setOrigin(0.5, 1);
 
     this.dialogManager = new DialogManager(this);
@@ -365,6 +372,12 @@ export class Town extends Scene implements MovableScene {
 
   activatePortal(target: string, portal: GameObjects.Image) {
     if (this.dialogManager.isActive()) return;
+
+    this.otherPlayers.forEach((otherPlayer, id) => {
+      otherPlayer.destroy();
+      this.otherPlayers.delete(id);
+    });
+
     socket.emit("leaveRooms");
     socket.emit("joinRoom", target);
     this.tweens.add({
@@ -376,6 +389,7 @@ export class Town extends Scene implements MovableScene {
         this.changeScene(target);
       },
     });
+
     this.cameras.main.flash(500, 255, 255, 255);
   }
 
@@ -428,6 +442,61 @@ export class Town extends Scene implements MovableScene {
     }
     const index = tileY * mapWidthInTiles + tileX;
     return this.obstacles[index] !== 0;
+  }
+
+  newOtherPlayer(player: OtherPlayer) {
+    const otherPlayer = this.add.sprite(player.x, player.y, "player-idle"); // Utilisez une texture valide
+    otherPlayer.setOrigin(0.5, 1);
+    otherPlayer.setDepth(10);
+
+    if (!this.anims.exists("idle")) {
+      this.anims.create({
+        key: "idle",
+        frames: this.anims.generateFrameNumbers("player-idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
+
+    otherPlayer.anims.play("idle", true);
+    this.otherPlayers.set(player.id, otherPlayer);
+  }
+
+  updateOtherPlayerPosition(player: OtherPlayer) {
+    const otherPlayer = this.otherPlayers.get(player.id);
+    if (!otherPlayer || !otherPlayer.active) {
+      console.warn(`OtherPlayer with ID: ${player.id} not found or inactive`);
+      return;
+    }
+
+    otherPlayer.setPosition(player.x, player.y);
+    this.otherPlayerRun(otherPlayer);
+  }
+
+  async otherPlayerRun(otherPlayer: GameObjects.Sprite) {
+    console.log("Running otherPlayerRun for:", otherPlayer);
+
+    if (!otherPlayer || !otherPlayer.anims) {
+      console.warn("OtherPlayer or animation system not available");
+      return;
+    }
+
+    otherPlayer.anims.play("run", true);
+
+    setTimeout(() => {
+      console.log("Setting idle animation for:", otherPlayer);
+
+      if (otherPlayer?.anims) {
+        otherPlayer.anims.play("idle", true);
+      } else {
+        console.warn(
+          "OtherPlayer or animation system not available in setTimeout",
+        );
+      }
+    }, 200);
   }
 
   obstacles = [
