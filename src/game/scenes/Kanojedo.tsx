@@ -1,4 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
+import CreateQuest from "@/components/CreateQuest";
+import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
@@ -6,11 +8,7 @@ import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import {
-  calculateOffsets,
-  getTileCoordinates,
-  getTileIndex,
-} from "./GridUtils";
+import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
 export class Kanojedo extends Scene implements MovableScene {
   Kanojedo: GameObjects.Image;
@@ -29,8 +27,9 @@ export class Kanojedo extends Scene implements MovableScene {
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
   rogueNpc: Npc;
+  questListDom: GameObjects.DOMElement | null = null;
+  createQuestDom: GameObjects.DOMElement | null = null;
 
-  // Propriétés de grille pour MovableScene
   tileWidth = 12;
   tileHeight = 12;
 
@@ -492,31 +491,15 @@ export class Kanojedo extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    /*this.debugDot = this.add.graphics();
-    this.obstaclesDebugGraphics = this.add.graphics();*/
-    // for (let i = 0; i < this.obstacles.length; i++) {
-    //   if (this.obstacles[i] !== 0) {
-    //     const tileX = i % mapWidthInTiles;
-    //     const tileY = Math.floor(i / mapWidthInTiles);
-    //     const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-    //     const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-    //     this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
-    //     this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
-    //   }
-    // }
-
-    // Création du portail
     this.portal = this.add.image(590, 590, "portal");
     this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
-    // Création du joueur
     this.player = this.add.sprite(200, 560, "player-run");
     this.player.setOrigin(0.5, 0.5);
     this.player.setScale(2);
     this.player.setDepth(2);
 
-    // Création des colliders
     this.portalCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
@@ -576,13 +559,13 @@ export class Kanojedo extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              // this.showQuestList();
+              this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              // this.showCreateQuest();
+              this.showCreateQuest();
             },
           },
         ],
@@ -591,9 +574,31 @@ export class Kanojedo extends Scene implements MovableScene {
 
     this.playerCollider = this.rogueNpc.getCollider();
 
-    // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
+  }
+
+  showQuestList(): void {
+    this.cleanupQuestUIs();
+    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom.setDepth(1000);
+  }
+
+  showCreateQuest(): void {
+    this.cleanupQuestUIs();
+    this.createQuestDom = this.add.dom(850, 50, reactToDom(<CreateQuest />));
+    this.createQuestDom.setDepth(1000);
+  }
+
+  private cleanupQuestUIs(): void {
+    if (this.questListDom) {
+      this.questListDom.destroy();
+      this.questListDom = null;
+    }
+    if (this.createQuestDom) {
+      this.createQuestDom.destroy();
+      this.createQuestDom = null;
+    }
   }
 
   updatePlayerCollider() {
@@ -640,8 +645,6 @@ export class Kanojedo extends Scene implements MovableScene {
     this.scene.start("Town");
   }
 
-  // Implémente isPositionBlocked pour la grille Kanojedo.
-  // Retourne false si obstacles est vide.
   isPositionBlocked(x: number, y: number): boolean {
     if (this.obstacles.length === 0) {
       return false;

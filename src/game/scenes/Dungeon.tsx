@@ -28,12 +28,13 @@ export class Dungeon extends Scene implements MovableScene {
   private lastValidY: number;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
-  private isOverlapping = false;
-  private portalRadius = 20;
+  private portalRadius = 30;
   private playerRadius = 10;
-
-  tileWidth = 12;
-  tileHeight = 12;
+  private offsetX: number;
+  private offsetY: number;
+  tileWidth: number;
+  tileHeight: number;
+  isOverlapping = false;
 
   obstacles: number[] = [
     75646, 75646, 75646, 75646, 75646, 75646, 75646, 75646, 75646, 75646, 75646,
@@ -429,13 +430,15 @@ export class Dungeon extends Scene implements MovableScene {
     75646, 75646, 75646, 75646, 0, 0, 0, 0, 0, 0, 75646, 75646, 75646, 75646,
     75646,
   ];
-  offsetX = 0;
-  offsetY = 0;
 
   constructor() {
     super("Dungeon");
-    this.lastValidX = 200;
-    this.lastValidY = 660;
+    this.tileWidth = 12;
+    this.tileHeight = 12;
+    this.lastValidX = 410;
+    this.lastValidY = 390;
+    this.offsetX = 0;
+    this.offsetY = 0;
   }
 
   preload() {
@@ -524,7 +527,7 @@ export class Dungeon extends Scene implements MovableScene {
     );
     this.playerCollider = new Phaser.Geom.Circle(
       this.player.x,
-      this.player.y - this.player.height / 4,
+      this.player.y,
       this.playerRadius,
     );
 
@@ -534,7 +537,7 @@ export class Dungeon extends Scene implements MovableScene {
 
     this.tweens.add({
       targets: this.portal,
-      scale: 0.1,
+      scale: 0.15,
       duration: 1000,
       yoyo: true,
       repeat: -1,
@@ -641,24 +644,26 @@ export class Dungeon extends Scene implements MovableScene {
       this.playerCollider,
       this.portalCollider,
     );
-    if (isColliding && !this.isOverlapping) {
-      this.isOverlapping = true;
-      this.activatePortal();
-    } else if (!isColliding && this.isOverlapping) {
-      this.isOverlapping = false;
+
+    if (isColliding) {
+      this.activatePortal("Town", this.portal);
     }
   }
 
-  activatePortal(): void {
+  checkPortalCollisions(): void {
+    this.checkPortalCollision();
+  }
+
+  activatePortal(target: string, portal: GameObjects.Image): void {
     socket.emit("leaveRooms");
-    socket.emit("joinRoom", "Town");
+    socket.emit("joinRoom", target);
     this.tweens.add({
-      targets: this.portal,
+      targets: portal,
       scale: 0.2,
       alpha: 0,
       duration: 500,
       onComplete: () => {
-        this.changeScene();
+        this.changeScene(target);
       },
     });
     this.cameras.main.flash(500, 255, 255, 255);
@@ -677,27 +682,11 @@ export class Dungeon extends Scene implements MovableScene {
       this.lastValidX = this.player.x;
       this.lastValidY = this.player.y;
     }
-
-    if (this.debugDot) {
-      this.debugDot.clear();
-      const { tileX, tileY } = getTileCoordinates(
-        this.player.x,
-        this.player.y,
-        this.tileWidth,
-        this.tileHeight,
-        this.offsetX,
-        this.offsetY,
-      );
-      const dotX = this.offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-      const dotY = this.offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-      this.debugDot.fillStyle(0xff0000, 1);
-      this.debugDot.fillCircle(dotX, dotY, 5);
-    }
   }
 
-  changeScene(): void {
+  changeScene(scene: string): void {
     this.cleanupQuestUIs();
-    this.scene.start("Town");
+    this.scene.start(scene);
   }
 
   isPositionBlocked(x: number, y: number): boolean {
