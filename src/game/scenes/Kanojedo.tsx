@@ -481,8 +481,8 @@ export class Kanojedo extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    this.debugDot = this.add.graphics();
-    this.obstaclesDebugGraphics = this.add.graphics();
+    /*this.debugDot = this.add.graphics();
+    this.obstaclesDebugGraphics = this.add.graphics();*/
     // for (let i = 0; i < this.obstacles.length; i++) {
     //   if (this.obstacles[i] !== 0) {
     //     const tileX = i % mapWidthInTiles;

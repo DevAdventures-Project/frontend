@@ -138,20 +138,6 @@ export class Town extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    // Affichage des obstacles en mode debug
-    this.debugDot = this.add.graphics();
-    this.obstaclesDebugGraphics = this.add.graphics();
-    for (let i = 0; i < this.obstacles.length; i++) {
-      if (this.obstacles[i] !== 0) {
-        const tileX = i % mapWidthInTiles;
-        const tileY = Math.floor(i / mapWidthInTiles);
-        const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-        const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-        this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
-        this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
-      }
-    }
-
     // Configuration des portails
     const portalConfigs: PortalConfig[] = [
       { x: 730, y: 352, target: "Dungeon" },
