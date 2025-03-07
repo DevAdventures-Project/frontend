@@ -59,6 +59,9 @@ export class CozyCity extends Scene implements MovableScene {
               pseudo: localStorage.getItem("pseudo"),
             } as UserChat
           }
+          changeScene={() => {
+            this.scene.launch("MarketplaceScene");
+          }}
         />,
       ),
     );
