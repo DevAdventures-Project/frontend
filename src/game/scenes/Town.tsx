@@ -1,7 +1,7 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
-import LoginLayout from "@/components/LoginLayout";
 import LeaderBoard from "@/components/LeaderBoard";
+import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
