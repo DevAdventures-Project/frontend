@@ -5,7 +5,6 @@ import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { CozyCity } from "./game/scenes/CozyCity";
 import type { Dungeon } from "./game/scenes/Dungeon";
 import type { Kanojedo } from "./game/scenes/Kanojedo";
-import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
 
 export default function App() {
