@@ -588,13 +588,13 @@ export class Dungeon extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              this.showQuestList();
+              // this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              this.showCreateQuest();
+              // this.showCreateQuest();
             },
           },
         ],

@@ -4,10 +4,7 @@ import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
-<<<<<<< HEAD
 import { Npc } from "../Npc";
-=======
->>>>>>> main
 import { type MovableScene, Player } from "../Player";
 import {
   calculateOffsets,
@@ -24,20 +21,14 @@ export class Kanojedo extends Scene implements MovableScene {
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
-<<<<<<< HEAD
   npcCollider: Phaser.Geom.Circle;
-=======
->>>>>>> main
   private isOverlapping = false;
   private portalRadius = 20;
   private playerRadius = 10;
   playerMovement: Player;
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
-<<<<<<< HEAD
   rogueNpc: Npc;
-=======
->>>>>>> main
 
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
@@ -465,13 +456,11 @@ export class Kanojedo extends Scene implements MovableScene {
         frameHeight: 32,
       },
     );
-<<<<<<< HEAD
     this.load.spritesheet("npc-idle", "assets/npc/Rogue/Idle/Idle-Sheet.png", {
       frameWidth: 32,
       frameHeight: 32,
     });
-=======
->>>>>>> main
+    
   }
 
   create() {
@@ -486,13 +475,10 @@ export class Kanojedo extends Scene implements MovableScene {
       align: "center",
     });
 
-<<<<<<< HEAD
     const testSprite = this.add.sprite(100, 100, "player-idle");
     testSprite.setScale(2);
     testSprite.play("player-idle");
 
-=======
->>>>>>> main
     // Calcul de l'offset pour centrer la grille dans une fenêtre de 1024x768
     const mapWidthInTiles = 85;
     const mapHeightInTiles = 64; // Exemple : 30 lignes
@@ -574,7 +560,6 @@ export class Kanojedo extends Scene implements MovableScene {
       ease: "Sine.easeInOut",
     });
 
-<<<<<<< HEAD
     const npcName = "Miss monde des Douzes";
     this.rogueNpc = new Npc(this, {
       name: npcName,
@@ -592,13 +577,13 @@ export class Kanojedo extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              this.showQuestList();
+              // this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              this.showCreateQuest();
+              // this.showCreateQuest();
             },
           },
         ],
@@ -607,8 +592,6 @@ export class Kanojedo extends Scene implements MovableScene {
 
     this.playerCollider = this.rogueNpc.getCollider();
 
-=======
->>>>>>> main
     // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);

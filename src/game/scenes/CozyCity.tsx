@@ -30,7 +30,6 @@ export class CozyCity extends Scene implements MovableScene {
   obstaclesDebugGraphics: GameObjects.Graphics;
   wizardNpc: Npc;
 
-
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
   tileHeight = 12;
@@ -614,13 +613,13 @@ export class CozyCity extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              this.showQuestList();
+              // this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              this.showCreateQuest();
+              // this.showCreateQuest();
             },
           },
         ],
