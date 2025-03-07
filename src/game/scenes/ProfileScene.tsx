@@ -8,7 +8,17 @@ export class ProfileScene extends Scene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ProfilePage />));
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <ProfilePage
+          leaveScene={() => {
+            this.stopScene();
+          }}
+        />,
+      ),
+    );
   }
 
   stopScene() {
