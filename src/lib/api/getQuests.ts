@@ -2,15 +2,18 @@
 
 import type { Quest } from "@/models/Quest";
 
-export async function getQuests(): Promise<Quest[]> {
+export async function getQuests(category: string): Promise<Quest[]> {
   const API_URL = process.env.API_URL;
 
-  const response = await fetch(`${API_URL}/quests`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `${API_URL}/quests/category/${category}?status=open`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   if (response.ok) {
     let data = await response.json();

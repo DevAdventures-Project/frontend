@@ -2,13 +2,11 @@ import type { GameObjects, Scene } from "phaser";
 import { EventBus } from "./EventBus";
 import { socket } from "@/contexts/WebSocketContext";
 
-// On étend l'interface MovableScene pour inclure les propriétés de la grille.
 export interface MovableScene {
   player: GameObjects.Sprite;
   updatePlayerCollider(): void;
   checkPortalCollision(): void;
   checkNpcCollision?(): void;
-  // Propriétés ajoutées pour le calcul des collisions sur une grille
   tileWidth: number;
   tileHeight: number;
   obstacles: number[];
@@ -103,7 +101,7 @@ export class Player {
     const tileHeight: number = this.scene.tileHeight;
     const tileX = Math.floor(x / tileWidth);
     const tileY = Math.floor(y / tileHeight);
-    const mapWidthInTiles = 70; // largeur fixe, issue de Town.tsx
+    const mapWidthInTiles = 70;
     const index = tileY * mapWidthInTiles + tileX;
     const obstacleValue = this.scene.obstacles[index];
 
@@ -119,6 +117,7 @@ export class Player {
 
     // Mise à jour de la position si le déplacement est valide.
     socket.emit("position", JSON.stringify({ x, y }));
+
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
     this.scene.updatePlayerCollider();
