@@ -1,15 +1,15 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
+import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import LoginLayout from "@/components/LoginLayout";
-import type { UserChat } from "@/models/User";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;

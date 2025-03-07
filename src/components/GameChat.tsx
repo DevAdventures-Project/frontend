@@ -1,14 +1,14 @@
 "use client";
 
-import type React from "react";
 import { WebSocketContext } from "@/contexts/WebSocketContext";
+import { createQuestMessage } from "@/lib/api/createQuestMessage";
+import { getChatRooms } from "@/lib/api/getChatRooms";
+import { getQuestsChat } from "@/lib/api/getQuestsChat";
 import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
 import { ChevronLeft, ChevronRight, Send } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, useContext } from "react";
-import { getQuestsChat } from "@/lib/api/getQuestsChat";
-import { getChatRooms } from "@/lib/api/getChatRooms";
-import { createQuestMessage } from "@/lib/api/createQuestMessage";
+import type React from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface GameChatProps {
   isVisible: boolean;

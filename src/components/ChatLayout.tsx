@@ -1,9 +1,9 @@
 "use client";
 
+import type { UserChat } from "@/models/User";
 import { useState } from "react";
 import GameChat from "./GameChat";
 import ChatToggleButton from "./ui/ChatToggle";
-import type { UserChat } from "@/models/User";
 
 interface ChatLayoutProps {
   user: { id: number | null; pseudo: string };
