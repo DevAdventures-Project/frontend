@@ -123,6 +123,10 @@ export class Town extends Scene implements MovableScene {
       this.otherPlayers.get(player.id)?.destroy();
       this.otherPlayers.delete(player.id);
     })
+    socket.on("position", (data) => {
+      let player: OtherPlayer = JSON.parse(data);
+      this.updateOtherPlayerPosition(player);
+    });
     socket.emit("getOtherPlayers");
 
     this.town = this.add.image(512, 384, "town").setDepth(0);
@@ -183,6 +187,7 @@ export class Town extends Scene implements MovableScene {
     );
 
     this.createAnimations();
+    this.player.anims.play("idle", true);
 
     this.player.setOrigin(0.5, 1);
 
@@ -412,15 +417,28 @@ export class Town extends Scene implements MovableScene {
   newOtherPlayer(player: OtherPlayer) {
 
     console.log("newOtherPlayer",typeof player, player, player.x, player.y);
-    const otherPlayer = this.add.sprite(player.x, player.y, "player-idle");
+    const otherPlayer = this.add.sprite(player.x, player.y, "idle");
     otherPlayer.setOrigin(0.5, 1);
     otherPlayer.setDepth(10);
-    otherPlayer.anims.play("player-idle", true)
+    otherPlayer.anims.play("idle", true)
     this.otherPlayers.set(player.id, otherPlayer);
     this.otherPlayersPositions.set(player.id, { x: player.x, y: player.y });
-    EventBus.emit("other-player-added", player);
   }
 
+  updateOtherPlayerPosition(player: OtherPlayer) {
+    const otherPlayer = this.otherPlayers.get(player.id);
+    if (!otherPlayer) return;
+    otherPlayer.setPosition(player.x, player.y);
+    this.otherPlayerRun(otherPlayer);
+    this.otherPlayersPositions.set(player.id, { x: player.x, y: player.y });
+  }
+
+  async otherPlayerRun(otherPlayer: GameObjects.Sprite) {
+    otherPlayer.anims.play("run", true);
+    setTimeout(() => {
+      otherPlayer.anims.play("idle", true);
+    }, 200);
+  }
   obstacles = [
     1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,
     1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,
