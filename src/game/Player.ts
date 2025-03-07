@@ -1,11 +1,17 @@
 import type { GameObjects, Scene } from "phaser";
 import { EventBus } from "./EventBus";
 
+// On étend l'interface MovableScene pour inclure les propriétés de la grille.
 export interface MovableScene {
   player: GameObjects.Sprite;
   updatePlayerCollider(): void;
   checkPortalCollision(): void;
   checkNpcCollision?(): void;
+  // Propriétés ajoutées pour le calcul des collisions sur une grille
+  tileWidth: number;
+  tileHeight: number;
+  obstacles: number[];
+  isPositionBlocked(x: number, y: number): boolean;
 }
 
 export class Player {
@@ -37,10 +43,6 @@ export class Player {
         y: this.scene.player.y,
       };
     }
-  }
-
-  public getPosition(): { x: number; y: number } {
-    return this.playerPosition;
   }
 
   public moveUp(): void {
@@ -97,6 +99,25 @@ export class Player {
   public updatePosition(x: number, y: number): void {
     if (!this.scene.player || this.isDialogActive) return;
 
+    const tileWidth: number = this.scene.tileWidth;
+    const tileHeight: number = this.scene.tileHeight;
+    const tileX = Math.floor(x / tileWidth);
+    const tileY = Math.floor(y / tileHeight);
+    const mapWidthInTiles = 70; // largeur fixe, issue de Town.tsx
+    const index = tileY * mapWidthInTiles + tileX;
+    const obstacleValue = this.scene.obstacles[index];
+
+    console.log(`Attempting move to: x=${x}, y=${y}`);
+    console.log(
+      `Tile coordinates: (${tileX}, ${tileY}) -> index: ${index}, obstacle value: ${obstacleValue}`,
+    );
+
+    if (this.scene.isPositionBlocked(x, y)) {
+      console.log(`Blocked move at: x=${x}, y=${y} (tile index ${index})`);
+      return;
+    }
+
+    // Mise à jour de la position si le déplacement est valide.
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
     this.scene.updatePlayerCollider();
@@ -135,9 +156,5 @@ export class Player {
 
   private onDialogEnded(): void {
     this.isDialogActive = false;
-  }
-
-  public canMove(): boolean {
-    return !this.isDialogActive;
   }
 }

@@ -283,7 +283,6 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
   );
 }
 
-// Helper function to format time from ISO string
 function formatTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
