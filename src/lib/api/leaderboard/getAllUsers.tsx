@@ -13,7 +13,7 @@ export async function getRankings(): Promise<UserLeaderBoard[]> {
   });
 
   if (!response.ok) {
-    throw new Error("Error deleting quest");
+    throw new Error("Error fetching rankins");
   }
 
   const data: UserLeaderBoard[] = await response.json();
