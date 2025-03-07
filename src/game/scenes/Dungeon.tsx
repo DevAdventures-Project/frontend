@@ -586,7 +586,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("Town");
+    this.scene.start("CozyCity");
   }
 
   // Implémente isPositionBlocked pour la grille Dungeon.
