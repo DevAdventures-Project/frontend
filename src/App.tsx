@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WebSocketContext, socket } from "./contexts/WebSocketContext";
+import { EventBus } from "./game/EventBus";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import type { CozyCity } from "./game/scenes/CozyCity";
 import type { Dungeon } from "./game/scenes/Dungeon";
@@ -8,9 +9,32 @@ import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
 
 export default function App() {
+  const [canMoveSprite, setCanMoveSprite] = useState(true);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
   const walkableScenes = ["Town", "Dungeon", "CozyCity", "Kanojedo"];
+
+  const changeScene = () => {
+    if (phaserRef.current) {
+      const scene = phaserRef.current.scene as MainMenu;
+
+      if (scene) {
+        scene.changeScene();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePositionUpdate = (position: { x: number; y: number }) => {
+      setSpritePosition(position);
+    };
+
+    EventBus.on("player-position-updated", handlePositionUpdate);
+
+    return () => {
+      EventBus.off("player-position-updated", handlePositionUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -71,18 +95,26 @@ export default function App() {
     };
   }, []);
 
+  const currentScene = (scene: Phaser.Scene) => {
+    setCanMoveSprite(scene.scene.key !== "MainMenu");
+  };
+
   return (
     <div id="app">
       <WebSocketContext.Provider value={socket}>
-        <PhaserGame
-          ref={phaserRef}
-          currentActiveScene={(scene: Phaser.Scene) => {}}
-        />
+        <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+        <div>
+          <div>
+            <button className="button" onClick={changeScene} type="button">
+              Change Scene
+            </button>
+          </div>
+          <div className="spritePosition">
+            Sprite Position:
+            <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
+          </div>
+        </div>
       </WebSocketContext.Provider>
     </div>
   );
 }
-function useState(arg0: { x: number; y: number; }): [any, any] {
-  throw new Error("Function not implemented.");
-}
-
