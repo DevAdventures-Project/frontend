@@ -15,6 +15,7 @@ export default function ProfilePage() {
     pseudo: "",
     coins: -1,
     questsHelped: [],
+    inventory: [],
   });
 
   useEffect(() => {
