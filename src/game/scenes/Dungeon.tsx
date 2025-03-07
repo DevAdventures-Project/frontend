@@ -487,7 +487,7 @@ export class Dungeon extends Scene implements MovableScene {
     }
 
     // Création du portail
-    this.portal = this.add.image(590, 590, "portal");
+    this.portal = this.add.image(770, 290, "portal");
     this.portal.setScale(0.1);
     this.portal.setDepth(1);
 

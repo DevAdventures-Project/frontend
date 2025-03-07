@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { WebSocketContext, socket } from "./contexts/WebSocketContext";
 import { EventBus } from "./game/EventBus";
 import { type IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
+import type { CozyCity } from "./game/scenes/CozyCity";
 import type { Dungeon } from "./game/scenes/Dungeon";
+import { Kanojedo } from "./game/scenes/Kanojedo";
 import type { MainMenu } from "./game/scenes/MainMenu";
 import type { Town } from "./game/scenes/Town";
-import type { CozyCity } from "./game/scenes/CozyCity";
 
 export default function App() {
   const [canMoveSprite, setCanMoveSprite] = useState(true);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
-  const walkableScenes = ["Town", "Dungeon", "CozyCity"];
+  const walkableScenes = ["Town", "Dungeon", "CozyCity", "Kanojedo"];
 
   const changeScene = () => {
     if (phaserRef.current) {
