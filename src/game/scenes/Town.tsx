@@ -20,7 +20,6 @@ export class Town extends Scene implements MovableScene {
   player: GameObjects.Sprite;
   portal: GameObjects.Image;
   otherPlayers = new Map<number, GameObjects.Sprite>();
-  otherPlayersPositions = new Map<number, { x: number; y: number }>();
   portalCollider: Phaser.Geom.Circle;
   npcCollider: Phaser.Geom.Circle;
   playerCollider: Phaser.Geom.Circle;
@@ -422,7 +421,6 @@ export class Town extends Scene implements MovableScene {
     otherPlayer.setDepth(10);
     otherPlayer.anims.play("idle", true)
     this.otherPlayers.set(player.id, otherPlayer);
-    this.otherPlayersPositions.set(player.id, { x: player.x, y: player.y });
   }
 
   updateOtherPlayerPosition(player: OtherPlayer) {
@@ -430,7 +428,6 @@ export class Town extends Scene implements MovableScene {
     if (!otherPlayer) return;
     otherPlayer.setPosition(player.x, player.y);
     this.otherPlayerRun(otherPlayer);
-    this.otherPlayersPositions.set(player.id, { x: player.x, y: player.y });
   }
 
   async otherPlayerRun(otherPlayer: GameObjects.Sprite) {
