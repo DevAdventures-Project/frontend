@@ -460,7 +460,6 @@ export class Kanojedo extends Scene implements MovableScene {
       frameWidth: 32,
       frameHeight: 32,
     });
-    
   }
 
   create() {
