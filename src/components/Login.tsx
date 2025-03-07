@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { login } from "@/lib/api/login";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -49,8 +48,6 @@ const LoginPreview = (props: LoginProps) => {
     try {
       const success = await login(values.email, values.password);
 
-      console.log(success);
-
       localStorage.setItem("accessToken", success.accessToken);
       localStorage.setItem("userId", success.id.toString());
       localStorage.setItem("pseudo", success.pseudo);
@@ -62,12 +59,10 @@ const LoginPreview = (props: LoginProps) => {
     }
   }
 
-  return (
+  return props.loggedIn ? null : (
     <div
       id="masker"
-      className={`relative w-[1024px] h-[768px] overflow-hidden bg-black ${
-        props.loggedIn ? "hidden" : ""
-      }`}
+      className={"relative w-[1024px] h-[768px] overflow-hidden bg-black"}
     >
       <div className="flex flex-col min-h-[50vh] h-full w-full items-center justify-center px-4">
         <Card className="mx-auto max-w-sm">

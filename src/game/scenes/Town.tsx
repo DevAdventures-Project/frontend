@@ -1,9 +1,11 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import LeaderBoard from "@/components/LeaderBoard";
+import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
@@ -48,6 +50,24 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <ChatLayout
+          user={
+            {
+              id: localStorage.getItem("userId")
+                ? Number.parseInt(localStorage.getItem("userId") as string)
+                : null,
+              pseudo: localStorage.getItem("pseudo"),
+            } as UserChat
+          }
+        />,
+      ),
+    );
+    this.add.dom(0, 0, reactToDom(<LoginLayout />));
+
     this.addLeaderboardButton();
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
@@ -190,8 +210,6 @@ export class Town extends Scene implements MovableScene {
     this.npcCollider = this.wizardNpc.getCollider();
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
-
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
   }
 
   addLeaderboardButton(): void {
