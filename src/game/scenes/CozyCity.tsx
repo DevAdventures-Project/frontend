@@ -30,6 +30,7 @@ export class CozyCity extends Scene implements MovableScene {
   obstaclesDebugGraphics: GameObjects.Graphics;
   wizardNpc: Npc;
 
+
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
   tileHeight = 12;
