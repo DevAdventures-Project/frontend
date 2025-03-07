@@ -66,20 +66,20 @@ export class Town extends Scene implements MovableScene {
   preload() {
     // Ajout des layouts
     this.add.dom(
-        0,
-        0,
-        reactToDom(
-            <ChatLayout
-                user={
-                  {
-                    id: localStorage.getItem("userId")
-                        ? Number.parseInt(localStorage.getItem("userId") as string)
-                        : null,
-                    pseudo: localStorage.getItem("pseudo"),
-                  } as UserChat
-                }
-            />,
-        ),
+      0,
+      0,
+      reactToDom(
+        <ChatLayout
+          user={
+            {
+              id: localStorage.getItem("userId")
+                ? Number.parseInt(localStorage.getItem("userId") as string)
+                : null,
+              pseudo: localStorage.getItem("pseudo"),
+            } as UserChat
+          }
+        />,
+      ),
     );
     this.add.dom(0, 0, reactToDom(<LoginLayout />));
     this.addLeaderboardButton();
@@ -88,14 +88,22 @@ export class Town extends Scene implements MovableScene {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet("player-idle", "assets/npc/Knight/Idle/Idle-Sheet.png", {
-      frameWidth: 32,
-      frameHeight: 32,
-    });
-    this.load.spritesheet("npc-idle", "assets/npc/Wizzard/Idle/Idle-Sheet.png", {
-      frameWidth: 32,
-      frameHeight: 32,
-    });
+    this.load.spritesheet(
+      "player-idle",
+      "assets/npc/Knight/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
+    this.load.spritesheet(
+      "npc-idle",
+      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
@@ -116,8 +124,17 @@ export class Town extends Scene implements MovableScene {
 
     // Calculer les offsets pour centrer le calque d'obstacles dans une fenêtre de 1024x768
     const mapWidthInTiles = 70;
-    const mapHeightInTiles = Math.floor(this.obstacles.length / mapWidthInTiles);
-    const { offsetX, offsetY } = calculateOffsets(1024, 768, mapWidthInTiles, mapHeightInTiles, this.tileWidth, this.tileHeight);
+    const mapHeightInTiles = Math.floor(
+      this.obstacles.length / mapWidthInTiles,
+    );
+    const { offsetX, offsetY } = calculateOffsets(
+      1024,
+      768,
+      mapWidthInTiles,
+      mapHeightInTiles,
+      this.tileWidth,
+      this.tileHeight,
+    );
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
@@ -165,17 +182,24 @@ export class Town extends Scene implements MovableScene {
     this.lastValidY = this.player.y;
     this.player.setOrigin(0.5, 0.5);
     this.player.setDepth(2);
-    this.playerCollider = new Phaser.Geom.Circle(this.player.x, this.player.y, this.playerRadius);
+    this.playerCollider = new Phaser.Geom.Circle(
+      this.player.x,
+      this.player.y,
+      this.playerRadius,
+    );
     // Création des animations
     this.createAnimations();
     this.player.setOrigin(0.5, 1);
 
     this.dialogManager = new DialogManager(this);
-    EventBus.on("get-dialog-manager", (callback: (dialogManager: DialogManager) => void) => {
-      if (typeof callback === "function") {
-        callback(this.dialogManager);
-      }
-    });
+    EventBus.on(
+      "get-dialog-manager",
+      (callback: (dialogManager: DialogManager) => void) => {
+        if (typeof callback === "function") {
+          callback(this.dialogManager);
+        }
+      },
+    );
 
     const npcName = "M. Sananes";
     this.wizardNpc = new Npc(this, {
@@ -193,11 +217,15 @@ export class Town extends Scene implements MovableScene {
         responses: [
           {
             text: "Voir les quêtes",
-            action: () => { this.showQuestList(); },
+            action: () => {
+              this.showQuestList();
+            },
           },
           {
             text: "Créer une quête",
-            action: () => { this.showCreateQuest(); },
+            action: () => {
+              this.showCreateQuest();
+            },
           },
         ],
       },
@@ -209,7 +237,11 @@ export class Town extends Scene implements MovableScene {
 
   addLeaderboardButton(): void {
     const gameHeight = this.sys.game.canvas.height;
-    const leaderboardDom = this.add.dom(300, gameHeight, reactToDom(<LeaderBoard />));
+    const leaderboardDom = this.add.dom(
+      300,
+      gameHeight,
+      reactToDom(<LeaderBoard />),
+    );
     leaderboardDom.setDepth(1000);
   }
 
@@ -243,13 +275,19 @@ export class Town extends Scene implements MovableScene {
   createAnimations(): void {
     this.anims.create({
       key: "run",
-      frames: this.anims.generateFrameNumbers("player-run", { start: 0, end: 5 }),
+      frames: this.anims.generateFrameNumbers("player-run", {
+        start: 0,
+        end: 5,
+      }),
       frameRate: 10,
       repeat: -1,
     });
     this.anims.create({
       key: "idle",
-      frames: this.anims.generateFrameNumbers("player-idle", { start: 0, end: 3 }),
+      frames: this.anims.generateFrameNumbers("player-idle", {
+        start: 0,
+        end: 3,
+      }),
       frameRate: 10,
       repeat: -1,
     });
@@ -271,7 +309,9 @@ export class Town extends Scene implements MovableScene {
   // Vérifie la collision du joueur avec chaque portail
   checkPortalCollisions() {
     for (const p of this.portals) {
-      if (Phaser.Geom.Intersects.CircleToCircle(this.playerCollider, p.collider)) {
+      if (
+        Phaser.Geom.Intersects.CircleToCircle(this.playerCollider, p.collider)
+      ) {
         this.activatePortal(p.target, p.portal);
         break; // Un seul portail actif à la fois
       }
@@ -311,12 +351,12 @@ export class Town extends Scene implements MovableScene {
     if (this.debugDot) {
       this.debugDot.clear();
       const { tileX, tileY } = getTileCoordinates(
-          this.player.x,
-          this.player.y,
-          this.tileWidth,
-          this.tileHeight,
-          this.offsetX,
-          this.offsetY,
+        this.player.x,
+        this.player.y,
+        this.tileWidth,
+        this.tileHeight,
+        this.offsetX,
+        this.offsetY,
       );
       const dotX = this.offsetX + tileX * this.tileWidth + this.tileWidth / 2;
       const dotY = this.offsetY + tileY * this.tileHeight + this.tileHeight / 2;
@@ -334,18 +374,18 @@ export class Town extends Scene implements MovableScene {
     const mapWidthInTiles = 70;
     const mapHeightInTiles = this.obstacles.length / mapWidthInTiles;
     const { tileX, tileY } = getTileCoordinates(
-        x,
-        y,
-        this.tileWidth,
-        this.tileHeight,
-        this.offsetX,
-        this.offsetY,
+      x,
+      y,
+      this.tileWidth,
+      this.tileHeight,
+      this.offsetX,
+      this.offsetY,
     );
     if (
-        tileX < 0 ||
-        tileY < 0 ||
-        tileX >= mapWidthInTiles ||
-        tileY >= mapHeightInTiles
+      tileX < 0 ||
+      tileY < 0 ||
+      tileX >= mapWidthInTiles ||
+      tileY >= mapHeightInTiles
     ) {
       return true;
     }
