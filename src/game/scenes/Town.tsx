@@ -436,6 +436,7 @@ export class Town extends Scene implements MovableScene {
       otherPlayer.anims.play("idle", true);
     }, 200);
   }
+
   obstacles = [
     1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,
     1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025, 1025,

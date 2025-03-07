@@ -99,7 +99,6 @@ export class Player {
 
   public updatePosition(x: number, y: number): void {
     if (!this.scene.player || this.isDialogActive) return;
-
     const tileWidth: number = this.scene.tileWidth;
     const tileHeight: number = this.scene.tileHeight;
     const tileX = Math.floor(x / tileWidth);
