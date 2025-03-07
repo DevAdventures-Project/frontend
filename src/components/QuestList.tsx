@@ -24,7 +24,7 @@ import { EventBus } from "../game/EventBus";
 import { getQuests } from "../lib/api/getQuests";
 import { joinQuest } from "../lib/api/joinQuest";
 
-function QuestList() {
+function QuestList({ category }: { category: string }) {
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [userId, setUserId] = useState<number | null>(null);
@@ -41,7 +41,7 @@ function QuestList() {
       const userId = localStorage.getItem("userId");
       if (userId) {
         setUserId(Number.parseInt(userId));
-        const fetchedQuests = await getQuests();
+        const fetchedQuests = await getQuests(category);
         setQuests(fetchedQuests);
       }
     }
@@ -57,7 +57,7 @@ function QuestList() {
     return () => {
       EventBus.off("close-quest-list", handleCloseQuestList);
     };
-  }, []);
+  }, [category]);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);

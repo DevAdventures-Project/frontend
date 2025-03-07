@@ -130,9 +130,9 @@ export class Town extends Scene implements MovableScene {
     this.offsetY = offsetY;
 
     const portalConfigs: PortalConfig[] = [
-      { x: 730, y: 352, target: "Dungeon" },
-      { x: 470, y: 302, target: "CozyCity" },
-      { x: 540, y: 482, target: "Kanojedo" },
+      { x: 730, y: 352, target: "Cobol" },
+      { x: 470, y: 302, target: "Javascript" },
+      { x: 540, y: 482, target: "Scratch" },
     ];
 
     portalConfigs.forEach((config) => {
@@ -184,20 +184,18 @@ export class Town extends Scene implements MovableScene {
       interactionRadius: 50,
       dialogs: {
         npcName: npcName,
-        messages: [
-          "Salut je suis le goat du C, tu veux voir ou créer une quête de cette zone ?",
-        ],
+        messages: ["Salut je suis le goat du C, tu veux créer une quête ?"],
         responses: [
-          {
-            text: "Voir les quêtes",
-            action: () => {
-              this.showQuestList();
-            },
-          },
           {
             text: "Créer une quête",
             action: () => {
               this.showCreateQuest();
+            },
+          },
+          {
+            text: "Non merci",
+            action: () => {
+              this.cleanupQuestUIs();
             },
           },
         ],
@@ -216,12 +214,6 @@ export class Town extends Scene implements MovableScene {
       reactToDom(<LeaderBoard />),
     );
     leaderboardDom.setDepth(1000);
-  }
-
-  showQuestList(): void {
-    this.cleanupQuestUIs();
-    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
-    this.questListDom.setDepth(1000);
   }
 
   showCreateQuest(): void {

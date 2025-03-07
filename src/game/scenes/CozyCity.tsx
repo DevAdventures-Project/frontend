@@ -40,7 +40,7 @@ export class CozyCity extends Scene implements MovableScene {
   lastValidY: number;
 
   constructor() {
-    super("CozyCity");
+    super("Javascript");
     this.lastValidX = 650;
     this.lastValidY = 80;
   }
@@ -78,7 +78,7 @@ export class CozyCity extends Scene implements MovableScene {
 
   create() {
     this.CozyCity = this.add.image(512, 384, "cozy_tiles").setDepth(0);
-    this.title = this.add.text(100, 100, "CozyCity", {
+    this.title = this.add.text(100, 100, "Javascript", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
@@ -181,9 +181,9 @@ export class CozyCity extends Scene implements MovableScene {
             },
           },
           {
-            text: "Créer une quête",
+            text: "Au revoir",
             action: () => {
-              this.showCreateQuest();
+              this.cleanupQuestUIs();
             },
           },
         ],
@@ -247,12 +247,16 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("Kanojedo");
+    this.scene.start("Scratch");
   }
 
   showQuestList(): void {
     this.cleanupQuestUIs();
-    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom = this.add.dom(
+      850,
+      100,
+      reactToDom(<QuestList category="Javascript" />),
+    );
     this.questListDom.setDepth(1000);
   }
 

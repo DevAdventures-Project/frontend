@@ -39,7 +39,7 @@ export class Dungeon extends Scene implements MovableScene {
   isOverlapping = false;
 
   constructor() {
-    super("Dungeon");
+    super("Cobol");
     this.tileWidth = 12;
     this.tileHeight = 12;
     this.lastValidX = 410;
@@ -91,7 +91,7 @@ export class Dungeon extends Scene implements MovableScene {
 
   create() {
     this.dungeon = this.add.image(512, 384, "dungeon_tiles").setDepth(0);
-    this.title = this.add.text(100, 100, "Dungeon", {
+    this.title = this.add.text(100, 100, "Cobol", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
@@ -188,9 +188,9 @@ export class Dungeon extends Scene implements MovableScene {
             },
           },
           {
-            text: "Créer une quête",
+            text: "Non, merci",
             action: () => {
-              this.showCreateQuest();
+              this.cleanupQuestUIs();
             },
           },
         ],
@@ -228,7 +228,11 @@ export class Dungeon extends Scene implements MovableScene {
 
   showQuestList(): void {
     this.cleanupQuestUIs();
-    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom = this.add.dom(
+      850,
+      100,
+      reactToDom(<QuestList category="Cobol" />),
+    );
     this.questListDom.setDepth(1000);
   }
 
