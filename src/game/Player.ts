@@ -28,7 +28,7 @@ export class Player {
 
     if (scene.input.keyboard) {
       this.interactionKey = scene.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.COLON,
+        Phaser.Input.Keyboard.KeyCodes.COMMA,
       );
     }
 

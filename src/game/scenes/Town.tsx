@@ -1,18 +1,17 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
+import LeaderBoard from "@/components/LeaderBoard";
+import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import {
-  calculateOffsets,
-  getTileCoordinates,
-  getTileIndex,
-} from "./GridUtils";
+import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
@@ -28,6 +27,7 @@ export class Town extends Scene implements MovableScene {
   playerMovement: Player;
   dialogManager: DialogManager;
   wizardNpc: Npc;
+  private leaderboardDom: Phaser.GameObjects.DOMElement | null = null;
   questListDom: GameObjects.DOMElement | null = null;
   createQuestDom: GameObjects.DOMElement | null = null;
   tileWidth: number;
@@ -36,7 +36,6 @@ export class Town extends Scene implements MovableScene {
   lastValidY: number;
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
-  // Stockage des offsets calculés pour la grille
   private offsetX: number;
   private offsetY: number;
 
@@ -51,6 +50,25 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
+    this.add.dom(
+      0,
+      0,
+      reactToDom(
+        <ChatLayout
+          user={
+            {
+              id: localStorage.getItem("userId")
+                ? Number.parseInt(localStorage.getItem("userId") as string)
+                : null,
+              pseudo: localStorage.getItem("pseudo"),
+            } as UserChat
+          }
+        />,
+      ),
+    );
+    this.add.dom(0, 0, reactToDom(<LoginLayout />));
+
+    this.addLeaderboardButton();
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
@@ -88,7 +106,6 @@ export class Town extends Scene implements MovableScene {
       align: "center",
     });
 
-    // Calculer les offsets pour centrer le calque d'obstacles dans une fenêtre de 1024x768
     const mapWidthInTiles = 70;
     const mapHeightInTiles = Math.floor(
       this.obstacles.length / mapWidthInTiles,
@@ -120,7 +137,7 @@ export class Town extends Scene implements MovableScene {
     this.portal = this.add.image(730, 352, "portal");
     this.portal.setScale(0.1);
 
-    this.player = this.add.sprite(410, 402, "player-run"); // Position de départ du joueur
+    this.player = this.add.sprite(410, 402, "player-run");
     this.lastValidX = this.player.x;
     this.lastValidY = this.player.y;
 
@@ -193,8 +210,17 @@ export class Town extends Scene implements MovableScene {
     this.npcCollider = this.wizardNpc.getCollider();
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
+  }
 
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Hub" />));
+  addLeaderboardButton(): void {
+    const gameHeight = this.sys.game.canvas.height;
+
+    this.leaderboardDom = this.add.dom(
+      300,
+      gameHeight,
+      reactToDom(<LeaderBoard />),
+    );
+    this.leaderboardDom.setDepth(1000);
   }
 
   showQuestList(): void {
@@ -299,14 +325,13 @@ export class Town extends Scene implements MovableScene {
     this.updatePlayerCollider();
     this.checkPortalCollision();
     this.checkNpcCollision();
+    this.playerMovement.update();
     this.wizardNpc.update(this.playerCollider);
 
     if (this.isPositionBlocked(this.player.x, this.player.y)) {
-      // Revenir à la dernière position valide
       this.player.x = this.lastValidX;
       this.player.y = this.lastValidY;
     } else {
-      // Mise à jour de la dernière position valide
       this.lastValidX = this.player.x;
       this.lastValidY = this.player.y;
     }
