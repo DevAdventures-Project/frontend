@@ -28,6 +28,9 @@ interface Portal {
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
   title: GameObjects.Text;
+  textetp1: GameObjects.Text;
+  textetp2: GameObjects.Text;
+  textetp3: GameObjects.Text;
   player: GameObjects.Sprite;
   portals: Portal[] = [];
   npcCollider: Phaser.Geom.Circle;
@@ -111,6 +114,33 @@ export class Town extends Scene implements MovableScene {
     this.title = this.add.text(100, 100, "The Hub", {
       fontFamily: "Arial Black",
       fontSize: 38,
+      color: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 8,
+      align: "center",
+    });
+
+    this.textetp1 = this.add.text(410, 220, "Javascript", {
+      fontFamily: "Arial Black",
+      fontSize: 20,
+      color: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 8,
+      align: "center",
+    });
+
+    this.textetp2 = this.add.text(690, 280, "Cobol", {
+      fontFamily: "Arial Black",
+      fontSize: 20,
+      color: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 8,
+      align: "center",
+    });
+
+    this.textetp3 = this.add.text(490, 520, "Scratch", {
+      fontFamily: "Arial Black",
+      fontSize: 20,
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 8,
