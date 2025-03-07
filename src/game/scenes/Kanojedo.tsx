@@ -9,6 +9,7 @@ import {
   getTileCoordinates,
   getTileIndex,
 } from "./GridUtils";
+import { UserChat } from "@/models/User";
 
 export class Kanojedo extends Scene implements MovableScene {
   Kanojedo: GameObjects.Image;
@@ -424,7 +425,14 @@ export class Kanojedo extends Scene implements MovableScene {
   }
 
   preload() {
-    this.add.dom(0, 0, reactToDom(<ChatLayout room="Kanojedo" />));
+    this.add.dom(0, 0, reactToDom(<ChatLayout user={
+                {
+                  id: localStorage.getItem("userId")
+                    ? Number.parseInt(localStorage.getItem("userId") as string)
+                    : null,
+                  pseudo: localStorage.getItem("pseudo"),
+                } as UserChat
+              } />));
     this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
       frameWidth: 64,
       frameHeight: 64,
