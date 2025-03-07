@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { socket } from "@/contexts/WebSocketContext";
 import { login } from "@/lib/api/login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { socket } from "../contexts/WebSocketContext";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),

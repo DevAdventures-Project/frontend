@@ -4,7 +4,7 @@ import { WebSocketContext } from "@/contexts/WebSocketContext";
 import { createQuestMessage } from "@/lib/api/createQuestMessage";
 import { getChatRooms } from "@/lib/api/getChatRooms";
 import { getQuestsChat } from "@/lib/api/getQuestsChat";
-import type { Message } from "@/models/Message";
+import type { Message, QuestMessage } from "@/models/Message";
 import type { UserChat } from "@/models/User";
 import { ChevronLeft, ChevronRight, Send } from "lucide-react";
 import type React from "react";
@@ -30,54 +30,79 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
   >([]);
   const wsClient = useContext(WebSocketContext);
 
-  useEffect(() => {
-    if (currentRoomId === 0) {
-      const handleMessage = (data: string) => {
-        const newMessage: Message = JSON.parse(data);
-        setMessages((prevMessages) => ({
-          ...prevMessages,
-          0: [...(prevMessages[0] || []), newMessage],
-        }));
-      };
-
-      wsClient.on("message", handleMessage);
-
-      return () => {
-        wsClient.off("message", handleMessage);
-      };
-    }
-  }, [currentRoomId, wsClient]);
-
-  const sendQuestMessage = (
-    content: string,
-    userId: number,
-    questId: number,
-  ) => {
-    createQuestMessage(content, userId, questId);
-    setMessages((prevMessages) => ({
-      ...prevMessages,
-      [questId]: [
-        ...(prevMessages[questId] || []),
-        {
-          content,
-          author: { id: userId, pseudo: currentUser.pseudo },
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    }));
+  const handleRoomChange = (roomId: number) => {
+    setCurrentRoomId(roomId);
   };
 
   useEffect(() => {
     getQuestsChat().then((data) => {
       setMessages(data);
     });
-    getChatRooms().then((data) => {
+    getChatRooms(localStorage?.getItem("accessToken") || "").then((data) => {
       setAvailableRooms(data);
+
+      data.forEach((room) => {
+        if (room.id !== 0) {
+          wsClient.emit("joinQuestRoom", {
+            questId: room.id,
+            user: currentUser,
+          });
+        }
+      });
     });
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, []);
+
+    // Cleanup: Disconnect from all quest rooms
+    return () => {
+      availableRooms.forEach((room) => {
+        if (room.id !== 0) {
+          wsClient.emit("leaveQuestRoom", {
+            questId: room.id,
+            user: currentUser,
+          });
+        }
+      });
+    };
+  }, [wsClient, currentUser, availableRooms]);
+
+  useEffect(() => {
+    const handleMessage = (data: string) => {
+      const newMessage: Message = JSON.parse(data);
+
+      if (newMessage.author.id === currentUser.id) return;
+
+      setMessages((prevMessages) => ({
+        ...prevMessages,
+        0: [...(prevMessages[0] || []), newMessage],
+      }));
+    };
+
+    wsClient.on("message", handleMessage);
+
+    return () => {
+      wsClient.off("message", handleMessage);
+    };
+  }, [wsClient, currentUser.id]);
+
+  useEffect(() => {
+    const handleQuestMessage = (data: QuestMessage) => {
+      if (data.author.id === currentUser.id) return;
+
+      setMessages((prevMessages) => ({
+        ...prevMessages,
+        [data.quest.id]: [...(prevMessages[data.quest.id] || []), data],
+      }));
+
+      if (data.quest.id !== 0) {
+        createQuestMessage(data.content, data.author.id, data.quest.id);
+      }
+    };
+
+    wsClient.on("questMessage", handleQuestMessage);
+
+    return () => {
+      wsClient.off("questMessage", handleQuestMessage);
+    };
+  }, [wsClient, currentUser.id]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,19 +113,47 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
           author: currentUser,
           createdAt: new Date().toISOString(),
         };
+
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          0: [...(prevMessages[0] || []), newMessage],
+        }));
+
         wsClient.emit("message", JSON.stringify(newMessage));
       } else {
-        sendQuestMessage(messageInput, currentUser.id, currentRoomId);
+        const newMessage: QuestMessage = {
+          content: messageInput,
+          author: currentUser,
+          createdAt: new Date().toISOString(),
+          quest: {
+            id: currentRoomId,
+            title:
+              availableRooms.find((room) => room.id === currentRoomId)?.name ||
+              "",
+          },
+        };
+
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [currentRoomId]: [...(prevMessages[currentRoomId] || []), newMessage],
+        }));
+
+        wsClient.emit("sendQuestMessage", {
+          questId: currentRoomId,
+          message: newMessage,
+        });
       }
+
       setMessageInput("");
     }
   };
 
-  const handleRoomChange = (roomId: number) => {
-    setCurrentRoomId(roomId);
-  };
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
-  // Custom drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setDragStart({
