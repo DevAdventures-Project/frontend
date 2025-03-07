@@ -250,7 +250,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("Scratch");
+    this.scene.start("Town");
   }
 
   showQuestList(): void {

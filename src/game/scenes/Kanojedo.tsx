@@ -97,10 +97,6 @@ export class Kanojedo extends Scene implements MovableScene {
       align: "center",
     });
 
-    const testSprite = this.add.sprite(100, 100, "player-idle");
-    testSprite.setScale(2);
-    testSprite.play("player-idle");
-
     const mapWidthInTiles = 85;
     const mapHeightInTiles = 64;
     const { offsetX, offsetY } = calculateOffsets(
