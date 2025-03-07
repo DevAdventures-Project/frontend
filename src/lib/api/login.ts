@@ -1,6 +1,6 @@
 "use server";
 
-import { socket } from "@/contexts/WebSocketContext"
+import { socket } from "@/contexts/WebSocketContext";
 
 export async function login(
   email: string,
@@ -38,7 +38,7 @@ export async function login(
     pseudo: string;
   };
 
-  socket.emit("register", JSON.stringify({...dataProfile, x: 410, y: 390}));
+  socket.emit("register", JSON.stringify({ ...dataProfile, x: 410, y: 390 }));
 
   return {
     id: dataProfile.id,

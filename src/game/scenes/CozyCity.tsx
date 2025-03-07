@@ -1,6 +1,7 @@
 import ChatLayout from "@/components/ChatLayout";
 import CreateQuest from "@/components/CreateQuest";
 import QuestList from "@/components/QuestList";
+import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
@@ -9,7 +10,6 @@ import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
-import { socket } from "@/contexts/WebSocketContext";
 
 export class CozyCity extends Scene implements MovableScene {
   CozyCity: GameObjects.Image;

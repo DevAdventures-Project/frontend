@@ -5,6 +5,7 @@ import LoginLayout from "@/components/LoginLayout";
 import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
+import type { OtherPlayer } from "@/models/OtherPlayer";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene } from "phaser";
 import { DialogManager } from "../DialogManager";
@@ -12,7 +13,6 @@ import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
-import type { OtherPlayer } from "@/models/OtherPlayer";
 
 interface PortalConfig {
   x: number;
