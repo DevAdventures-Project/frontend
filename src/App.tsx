@@ -7,7 +7,7 @@ import type { Dungeon } from "./game/scenes/Dungeon";
 import type { Town } from "./game/scenes/Town";
 
 export default function App() {
-  const [setCanMoveSprite] = useState(true);
+  const [canMoveSprite, setCanMoveSprite] = useState(true);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
   const walkableScenes = ["Town", "Cobol", "Javascript", "Scratch"];
