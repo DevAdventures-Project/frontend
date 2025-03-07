@@ -1,4 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
+import CreateQuest from "@/components/CreateQuest";
+import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
@@ -6,11 +8,7 @@ import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import {
-  calculateOffsets,
-  getTileCoordinates,
-  getTileIndex,
-} from "./GridUtils";
+import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
 export class Dungeon extends Scene implements MovableScene {
   dungeon: GameObjects.Image;
@@ -20,17 +18,20 @@ export class Dungeon extends Scene implements MovableScene {
   collisionLayer: Phaser.Tilemaps.TilemapLayer;
   npcCollider: Phaser.Geom.Circle;
   portal: GameObjects.Image;
+  questListDom: GameObjects.DOMElement | null = null;
+  createQuestDom: GameObjects.DOMElement | null = null;
+  playerMovement: Player;
+  debugDot: GameObjects.Graphics;
+  obstaclesDebugGraphics: GameObjects.Graphics;
+  wizardNpc: Npc;
+  private lastValidX: number;
+  private lastValidY: number;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
   private portalRadius = 20;
   private playerRadius = 10;
-  playerMovement: Player;
-  debugDot: GameObjects.Graphics;
-  obstaclesDebugGraphics: GameObjects.Graphics;
-  wizardNpc: Npc;
 
-  // Propriétés de grille pour MovableScene
   tileWidth = 12;
   tileHeight = 12;
 
@@ -433,6 +434,8 @@ export class Dungeon extends Scene implements MovableScene {
 
   constructor() {
     super("Dungeon");
+    this.lastValidX = 200;
+    this.lastValidY = 660;
   }
 
   preload() {
@@ -464,10 +467,19 @@ export class Dungeon extends Scene implements MovableScene {
         frameHeight: 32,
       },
     );
+    this.load.spritesheet(
+      "npc-idle",
+      "assets/npc/Wizzard/Idle/Idle-Sheet.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      },
+    );
+    this.load.image("dungeon_tiles", "assets/tilemaps/tiles/dungeon.png");
+    this.load.image("portal", "assets/tilemaps/tiles/portal.png");
   }
 
   create() {
-    // Affichage du background (ici une image, pas un tilemap)
     this.dungeon = this.add.image(512, 384, "dungeon_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "Dungeon", {
       fontFamily: "Arial Black",
@@ -478,9 +490,8 @@ export class Dungeon extends Scene implements MovableScene {
       align: "center",
     });
 
-    // Calcul de l'offset pour centrer la grille dans une fenêtre de 1024x768
     const mapWidthInTiles = 85;
-    const mapHeightInTiles = 64; // Exemple : 30 lignes
+    const mapHeightInTiles = 64;
     const { offsetX, offsetY } = calculateOffsets(
       1024,
       768,
@@ -494,41 +505,18 @@ export class Dungeon extends Scene implements MovableScene {
 
     this.debugDot = this.add.graphics();
     this.obstaclesDebugGraphics = this.add.graphics();
-    for (let i = 0; i < this.obstacles.length; i++) {
-      if (this.obstacles[i] !== 0) {
-        const tileX = i % mapWidthInTiles;
-        const tileY = Math.floor(i / mapWidthInTiles);
-        const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-        const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-        this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
-        this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
-      }
-    }
-    this.debugDot = this.add.graphics();
-    this.obstaclesDebugGraphics = this.add.graphics();
-    for (let i = 0; i < this.obstacles.length; i++) {
-      if (this.obstacles[i] !== 0) {
-        const tileX = i % mapWidthInTiles;
-        const tileY = Math.floor(i / mapWidthInTiles);
-        const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-        const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-        this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
-        this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
-      }
-    }
 
-    // Création du portail
     this.portal = this.add.image(770, 290, "portal");
     this.portal.setScale(0.2);
     this.portal.setDepth(1);
 
-    // Création du joueur
     this.player = this.add.sprite(200, 660, "player-run");
+    this.lastValidX = this.player.x;
+    this.lastValidY = this.player.y;
     this.player.setOrigin(0.5, 0.5);
     this.player.setScale(2);
     this.player.setDepth(2);
 
-    // Création des colliders
     this.portalCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
@@ -540,26 +528,8 @@ export class Dungeon extends Scene implements MovableScene {
       this.playerRadius,
     );
 
-    // Création des animations
-    this.anims.create({
-      key: "run",
-      frames: this.anims.generateFrameNumbers("player-run", {
-        start: 0,
-        end: 5,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    this.createAnimations();
     this.player.setOrigin(0.5, 1);
-    this.anims.create({
-      key: "idle",
-      frames: this.anims.generateFrameNumbers("player-idle", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
     this.player.anims.play("idle");
 
     this.tweens.add({
@@ -571,6 +541,12 @@ export class Dungeon extends Scene implements MovableScene {
       ease: "Sine.easeInOut",
     });
 
+    this.setupNpc();
+    this.playerMovement = new Player(this);
+    EventBus.emit("current-scene-ready", this);
+  }
+
+  setupNpc(): void {
     const npcName = "M. Noled";
     this.wizardNpc = new Npc(this, {
       name: npcName,
@@ -588,34 +564,79 @@ export class Dungeon extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              // this.showQuestList();
+              this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              // this.showCreateQuest();
+              this.showCreateQuest();
             },
           },
         ],
       },
     });
-
-    this.playerCollider = this.wizardNpc.getCollider();
-
-    // Initialisation du mouvement du joueur avec la logique de grille
-    this.playerMovement = new Player(this);
-    EventBus.emit("current-scene-ready", this);
+    this.npcCollider = this.wizardNpc.getCollider();
   }
 
-  updatePlayerCollider() {
+  createAnimations(): void {
+    this.anims.create({
+      key: "run",
+      frames: this.anims.generateFrameNumbers("player-run", {
+        start: 0,
+        end: 5,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "idle",
+      frames: this.anims.generateFrameNumbers("player-idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "npc-idle",
+      frames: this.anims.generateFrameNumbers("npc-idle", { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+  }
+
+  showQuestList(): void {
+    this.cleanupQuestUIs();
+    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom.setDepth(1000);
+  }
+
+  showCreateQuest(): void {
+    this.cleanupQuestUIs();
+    this.createQuestDom = this.add.dom(850, 50, reactToDom(<CreateQuest />));
+    this.createQuestDom.setDepth(1000);
+  }
+
+  private cleanupQuestUIs(): void {
+    if (this.questListDom) {
+      this.questListDom.destroy();
+      this.questListDom = null;
+    }
+    if (this.createQuestDom) {
+      this.createQuestDom.destroy();
+      this.createQuestDom = null;
+    }
+  }
+
+  updatePlayerCollider(): void {
     if (this.player && this.playerCollider) {
       this.playerCollider.x = this.player.x;
       this.playerCollider.y = this.player.y - this.player.height / 4;
     }
   }
 
-  checkPortalCollision() {
+  checkPortalCollision(): void {
     const isColliding = Phaser.Geom.Intersects.CircleToCircle(
       this.playerCollider,
       this.portalCollider,
@@ -628,9 +649,9 @@ export class Dungeon extends Scene implements MovableScene {
     }
   }
 
-  activatePortal() {
+  activatePortal(): void {
     socket.emit("leaveRooms");
-    socket.emit("joinRoom", "HUB");
+    socket.emit("joinRoom", "Town");
     this.tweens.add({
       targets: this.portal,
       scale: 0.2,
@@ -643,17 +664,42 @@ export class Dungeon extends Scene implements MovableScene {
     this.cameras.main.flash(500, 255, 255, 255);
   }
 
-  update() {
+  update(): void {
     this.updatePlayerCollider();
     this.checkPortalCollision();
+    this.playerMovement.update();
+    this.wizardNpc.update(this.playerCollider);
+
+    if (this.isPositionBlocked(this.player.x, this.player.y)) {
+      this.player.x = this.lastValidX;
+      this.player.y = this.lastValidY;
+    } else {
+      this.lastValidX = this.player.x;
+      this.lastValidY = this.player.y;
+    }
+
+    if (this.debugDot) {
+      this.debugDot.clear();
+      const { tileX, tileY } = getTileCoordinates(
+        this.player.x,
+        this.player.y,
+        this.tileWidth,
+        this.tileHeight,
+        this.offsetX,
+        this.offsetY,
+      );
+      const dotX = this.offsetX + tileX * this.tileWidth + this.tileWidth / 2;
+      const dotY = this.offsetY + tileY * this.tileHeight + this.tileHeight / 2;
+      this.debugDot.fillStyle(0xff0000, 1);
+      this.debugDot.fillCircle(dotX, dotY, 5);
+    }
   }
 
-  changeScene() {
-    this.scene.start("CozyCity");
+  changeScene(): void {
+    this.cleanupQuestUIs();
+    this.scene.start("Town");
   }
 
-  // Implémente isPositionBlocked pour la grille Dungeon.
-  // Retourne false si obstacles est vide.
   isPositionBlocked(x: number, y: number): boolean {
     if (this.obstacles.length === 0) {
       return false;

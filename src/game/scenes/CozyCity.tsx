@@ -6,11 +6,7 @@ import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
-import {
-  calculateOffsets,
-  getTileCoordinates,
-  getTileIndex,
-} from "./GridUtils";
+import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
 export class CozyCity extends Scene implements MovableScene {
   CozyCity: GameObjects.Image;
@@ -529,7 +525,7 @@ export class CozyCity extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    this.debugDot = this.add.graphics();
+    /*this.debugDot = this.add.graphics();
     this.obstaclesDebugGraphics = this.add.graphics();
     for (let i = 0; i < this.obstacles.length; i++) {
       if (this.obstacles[i] !== 0) {
@@ -540,7 +536,7 @@ export class CozyCity extends Scene implements MovableScene {
         this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
         this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
       }
-    }
+    }*/
 
     // Création du portail
     this.portal = this.add.image(200, 580, "portal");
