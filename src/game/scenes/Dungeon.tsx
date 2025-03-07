@@ -504,7 +504,7 @@ export class Dungeon extends Scene implements MovableScene {
     }
 
     // Création du portail
-    this.portal = this.add.image(770, 290, "portal");
+    this.portal = this.add.image(770, 280, "portal");
     this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
@@ -603,7 +603,7 @@ export class Dungeon extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("CozyCity");
+    this.scene.start("Town");
   }
 
   // Implémente isPositionBlocked pour la grille Dungeon.
