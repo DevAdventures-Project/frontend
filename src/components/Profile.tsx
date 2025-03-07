@@ -8,7 +8,12 @@ import { ArrowLeft, Calendar } from "lucide-react";
 import Image from "next/image"; // Import Next.js Image component
 import { useEffect, useState } from "react";
 
-export default function ProfilePage() {
+interface ProfilePageProps {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  leaveScene: any;
+}
+
+export default function ProfilePage({ leaveScene }: ProfilePageProps) {
   const [activeTab, setActiveTab] = useState("inventory");
   const [userProfile, setUserProfile] = useState<UserProfile>({
     id: -1,
@@ -176,7 +181,7 @@ export default function ProfilePage() {
 
             <button
               type="button"
-              onClick={() => console.log("clicked")}
+              onClick={() => leaveScene()}
               className="mt-4 pixel-button bg-pokemon-red-dark text-pokemon-light flex items-center justify-center w-full"
               aria-label="Back to game"
             >
