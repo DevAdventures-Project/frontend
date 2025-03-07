@@ -17,16 +17,6 @@ export default function App() {
   const keysPressed = useRef<Set<string>>(new Set());
   const [cursor, setCursor] = useState(null);
 
-  const changeScene = () => {
-    if (phaserRef.current) {
-      const scene = phaserRef.current.scene as MainMenu;
-
-      if (scene) {
-        scene.changeScene();
-      }
-    }
-  };
-
   useEffect(() => {
     const handlePositionUpdate = (position: { x: number; y: number }) => {
       setSpritePosition(position);
@@ -142,7 +132,7 @@ export default function App() {
         <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
         <div>
           <div>
-            <button className="button" onClick={changeScene} type="button">
+            <button className="button" type="button">
               Change Scene
             </button>
           </div>

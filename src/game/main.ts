@@ -5,7 +5,6 @@ import { Dungeon } from "./scenes/Dungeon";
 import { Game as MainGame } from "./scenes/Game";
 import { GameOver } from "./scenes/GameOver";
 import { Kanojedo } from "./scenes/Kanojedo";
-import { MainMenu } from "./scenes/MainMenu";
 import { MarketplaceScene } from "./scenes/MarketplaceScene";
 import { Preloader } from "./scenes/Preloader";
 import { Town } from "./scenes/Town";
@@ -21,7 +20,6 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [
     Boot,
     Preloader,
-    MainMenu,
     MainGame,
     GameOver,
     Town,
