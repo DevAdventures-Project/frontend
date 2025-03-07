@@ -639,7 +639,7 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   changeScene() {
-    this.scene.start("Kanojedo");
+    this.scene.start("Town");
   }
 
   // Implémente isPositionBlocked pour la grille CozyCity.
