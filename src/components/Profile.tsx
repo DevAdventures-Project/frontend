@@ -61,14 +61,42 @@ export default function ProfilePage() {
       name: "senior",
       image: "/assets/ranks/boss.png",
     },
-    inventory: [
-      {
-        id: 1,
-        name: "Poké Ball",
-        count: 12,
-        image: "/placeholder.svg?height=40&width=40",
-      },
-    ],
+    inventory: userProfile.inventory.map((item) => {
+      const items = [
+        {
+          id: 1,
+          name: "Repos mérité",
+          image: "/assets/market/rest.png",
+          count: 1,
+        },
+        {
+          id: 2,
+          name: "L'habit fait le moine",
+          image: "/assets/market/clothe.png",
+          count: 1,
+        },
+        {
+          id: 3,
+          name: "Potion du monstre",
+          image: "/assets/market/potion.png",
+          count: 1,
+        },
+        {
+          id: 4,
+          name: "Pizza",
+          image: "/assets/market/pizza.png",
+          count: 1,
+        },
+        {
+          id: 5,
+          name: "Nuit blanche",
+          image: "/assets/market/coffee.png",
+          count: 1,
+        },
+      ];
+
+      return items[item.itemId - 1];
+    }),
     quests: userProfile.questsHelped.map((q) => {
       let coins = ranksCoins.stagiaire;
       let rankImage = "/assets/ranks/stagiaire.png";
