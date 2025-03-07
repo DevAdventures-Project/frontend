@@ -1,8 +1,5 @@
 import type { UserLeaderBoard } from "@/models/UserLeaderBoard";
-import { Trophy } from "lucide-react";
-import { RefObject, forwardRef } from "react";
-import LeaderBoard from "../LeaderBoard";
-import LeaderboardButton from "./LeaderboardToggle";
+import { Coins, Trophy } from "lucide-react";
 
 interface LeaderboardButtonProps {
   users: UserLeaderBoard[];
@@ -51,8 +48,17 @@ export default function LeaderBoardModal({ users }: LeaderboardButtonProps) {
                     {user.pseudo}
                   </div>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-right font-mono font-medium text-gray-900 dark:text-white">
-                  {user.coins.toLocaleString()} Coin
+                <td className="px-4 py-3 whitespace-nowrap text-right">
+                  <div className="font-medium text-gray-900 dark:text-white flex items-center justify-end gap-2">
+                    <span className="font-mono">
+                      {user.coins.toLocaleString()}
+                    </span>
+                    <Coins
+                      color="#FFD700"
+                      size={16}
+                      className="flex-shrink-0"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
