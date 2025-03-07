@@ -325,6 +325,7 @@ export class Town extends Scene implements MovableScene {
     this.updatePlayerCollider();
     this.checkPortalCollision();
     this.checkNpcCollision();
+    this.playerMovement.update();
     this.wizardNpc.update(this.playerCollider);
 
     if (this.isPositionBlocked(this.player.x, this.player.y)) {
