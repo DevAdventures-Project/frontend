@@ -1,5 +1,6 @@
 import type { GameObjects, Scene } from "phaser";
 import { EventBus } from "./EventBus";
+import { socket } from "@/contexts/WebSocketContext";
 
 export interface MovableScene {
   player: GameObjects.Sprite;
@@ -96,7 +97,7 @@ export class Player {
 
   public updatePosition(x: number, y: number): void {
     if (!this.scene.player || this.isDialogActive) return;
-
+    socket.emit("position", JSON.stringify({ x, y }));
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
     this.scene.updatePlayerCollider();

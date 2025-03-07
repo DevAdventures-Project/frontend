@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { socket } from "@/contexts/WebSocketContext";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -60,6 +61,15 @@ const LoginPreview = (props: LoginProps) => {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  if(props.loggedIn) {
+    socket.emit("register", JSON.stringify({
+      id: localStorage.getItem("userId"),
+      pseudo: localStorage.getItem("pseudo"),
+      x: 410,
+      y: 390,
+    }));
   }
 
   return (
