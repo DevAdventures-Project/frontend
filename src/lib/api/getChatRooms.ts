@@ -3,7 +3,7 @@
 import type { Quest } from "@/models/Quest";
 
 export async function getChatRooms(): Promise<{ id: number; name: string }[]> {
-  const API_URL = "https://hackaton.jayllyz.fr";
+  const API_URL = process.env.API_URL;
 
   const response = await fetch(`${API_URL}/quests`, {
     method: "GET",

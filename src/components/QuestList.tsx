@@ -41,7 +41,7 @@ function QuestList() {
       const userId = localStorage.getItem("userId");
       if (userId) {
         setUserId(Number.parseInt(userId));
-        const fetchedQuests = await getQuests(Number.parseInt(userId));
+        const fetchedQuests = await getQuests();
         setQuests(fetchedQuests);
       }
     }
