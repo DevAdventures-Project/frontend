@@ -22,16 +22,19 @@ export async function getQuestsChat(): Promise<Record<number, Message[]>> {
 
   data.forEach((questMessage) => {
     const { quest, ...message } = questMessage;
-  
-    if (quest && quest.id) {
+
+    if (quest?.id) {
       if (!messages[quest.id]) {
         messages[quest.id] = [];
       }
       messages[quest.id].push(message);
     } else {
-      console.warn("Quest is null or undefined, skipping message:", questMessage);
+      console.warn(
+        "Quest is null or undefined, skipping message:",
+        questMessage,
+      );
     }
   });
-  
+
   return messages;
 }

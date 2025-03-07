@@ -121,7 +121,6 @@ export default function App() {
       if (!currentScene || !currentScene.playerMovement) return;
 
       currentScene.playerMovement.startIdleAnimation();
-      
     };
 
     document.addEventListener("keydown", handleKeyDown);
