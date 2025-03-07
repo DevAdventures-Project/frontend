@@ -13,14 +13,12 @@ import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
 
-// Configuration pour chaque portail
 interface PortalConfig {
   x: number;
   y: number;
   target: string;
 }
 
-// Structure interne pour stocker un portail créé
 interface Portal {
   portal: GameObjects.Image;
   collider: Phaser.Geom.Circle;
@@ -31,7 +29,6 @@ export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
   title: GameObjects.Text;
   player: GameObjects.Sprite;
-  // Portails créés
   portals: Portal[] = [];
   npcCollider: Phaser.Geom.Circle;
   playerCollider: Phaser.Geom.Circle;
@@ -41,15 +38,12 @@ export class Town extends Scene implements MovableScene {
   playerMovement: Player;
   dialogManager: DialogManager;
   wizardNpc: Npc;
-  private leaderboardDom: GameObjects.DOMElement | null = null;
   questListDom: GameObjects.DOMElement | null = null;
   createQuestDom: GameObjects.DOMElement | null = null;
   tileWidth: number;
   tileHeight: number;
   lastValidX: number;
   lastValidY: number;
-  debugDot: GameObjects.Graphics;
-  obstaclesDebugGraphics: GameObjects.Graphics;
   private offsetX: number;
   private offsetY: number;
 
@@ -64,7 +58,6 @@ export class Town extends Scene implements MovableScene {
   }
 
   preload() {
-    // Ajout des layouts
     this.add.dom(
       0,
       0,
@@ -107,7 +100,6 @@ export class Town extends Scene implements MovableScene {
 
     this.load.image("tiles", "assets/tilemaps/tiles/town.png");
     this.load.tilemapTiledJSON("town", "assets/tilemaps/json/town.json");
-    // Chargez l'image du portail (assurez-vous que le chemin est correct)
     this.load.image("portal", "assets/tilemaps/tiles/portal.png");
   }
 
@@ -122,7 +114,6 @@ export class Town extends Scene implements MovableScene {
       align: "center",
     });
 
-    // Calculer les offsets pour centrer le calque d'obstacles dans une fenêtre de 1024x768
     const mapWidthInTiles = 70;
     const mapHeightInTiles = Math.floor(
       this.obstacles.length / mapWidthInTiles,
@@ -138,14 +129,12 @@ export class Town extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    // Configuration des portails
     const portalConfigs: PortalConfig[] = [
-      { x: 730, y: 352, target: "Dungeon" },
-      { x: 470, y: 302, target: "CozyCity" },
-      { x: 540, y: 482, target: "Kanojedo" },
+      { x: 730, y: 352, target: "Cobol" },
+      { x: 470, y: 302, target: "Javascript" },
+      { x: 540, y: 482, target: "Scratch" },
     ];
 
-    // Créer et animer les portails
     portalConfigs.forEach((config) => {
       const p = this.add.image(config.x, config.y, "portal");
       p.setScale(0.1);
@@ -162,7 +151,6 @@ export class Town extends Scene implements MovableScene {
       });
     });
 
-    // Création du joueur
     this.player = this.add.sprite(410, 402, "player-run");
     this.lastValidX = this.player.x;
     this.lastValidY = this.player.y;
@@ -173,7 +161,6 @@ export class Town extends Scene implements MovableScene {
       this.player.y,
       this.playerRadius,
     );
-    // Création des animations
     this.createAnimations();
     this.player.setOrigin(0.5, 1);
 
@@ -197,20 +184,18 @@ export class Town extends Scene implements MovableScene {
       interactionRadius: 50,
       dialogs: {
         npcName: npcName,
-        messages: [
-          "Salut je suis le goat du C, tu veux voir ou créer une quête de cette zone ?",
-        ],
+        messages: ["Salut je suis le goat du C, tu veux créer une quête ?"],
         responses: [
-          {
-            text: "Voir les quêtes",
-            action: () => {
-              this.showQuestList();
-            },
-          },
           {
             text: "Créer une quête",
             action: () => {
               this.showCreateQuest();
+            },
+          },
+          {
+            text: "Non merci",
+            action: () => {
+              this.cleanupQuestUIs();
             },
           },
         ],
@@ -229,12 +214,6 @@ export class Town extends Scene implements MovableScene {
       reactToDom(<LeaderBoard />),
     );
     leaderboardDom.setDepth(1000);
-  }
-
-  showQuestList(): void {
-    this.cleanupQuestUIs();
-    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
-    this.questListDom.setDepth(1000);
   }
 
   showCreateQuest(): void {
@@ -292,14 +271,13 @@ export class Town extends Scene implements MovableScene {
     }
   }
 
-  // Vérifie la collision du joueur avec chaque portail
   checkPortalCollisions() {
     for (const p of this.portals) {
       if (
         Phaser.Geom.Intersects.CircleToCircle(this.playerCollider, p.collider)
       ) {
         this.activatePortal(p.target, p.portal);
-        break; // Un seul portail actif à la fois
+        break;
       }
     }
   }
@@ -332,22 +310,6 @@ export class Town extends Scene implements MovableScene {
     } else {
       this.lastValidX = this.player.x;
       this.lastValidY = this.player.y;
-    }
-
-    if (this.debugDot) {
-      this.debugDot.clear();
-      const { tileX, tileY } = getTileCoordinates(
-        this.player.x,
-        this.player.y,
-        this.tileWidth,
-        this.tileHeight,
-        this.offsetX,
-        this.offsetY,
-      );
-      const dotX = this.offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-      const dotY = this.offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-      this.debugDot.fillStyle(0xff0000, 1);
-      this.debugDot.fillCircle(dotX, dotY, 5);
     }
   }
 
