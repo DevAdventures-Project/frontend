@@ -12,7 +12,7 @@ import { EventBus } from "../EventBus";
 import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import { calculateOffsets, getTileCoordinates } from "./GridUtils";
-import { OtherPlayer } from "@/models/OtherPlayer";
+import type { OtherPlayer } from "@/models/OtherPlayer";
 
 export class Town extends Scene implements MovableScene {
   town: GameObjects.Image;
@@ -84,6 +84,12 @@ export class Town extends Scene implements MovableScene {
         frameHeight: 32,
       },
     );
+
+    this.load.spritesheet("player-run", "assets/npc/Knight/Run/Run-Sheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+
     this.load.spritesheet(
       "npc-idle",
       "assets/npc/Wizzard/Idle/Idle-Sheet.png",
@@ -98,32 +104,38 @@ export class Town extends Scene implements MovableScene {
   }
 
   create() {
-
-    socket.on("otherPlayers", data => {
-      const otherPlayers = JSON.parse(data).map(((player: string) => JSON.parse(player)));
+    socket.on("otherPlayers", (data) => {
+      const otherPlayers = JSON.parse(data).map((player: string) =>
+        JSON.parse(player),
+      );
       this.otherPlayers.clear();
       otherPlayers.forEach((player: OtherPlayer) => {
         this.newOtherPlayer(player);
       });
-    })
+    });
     socket.on("joinedRoom", (data) => {
-      let player: OtherPlayer = JSON.parse(data);
+      const player: OtherPlayer = JSON.parse(data);
       this.newOtherPlayer(player);
-    })
+    });
     socket.on("leftRoom", (data) => {
-      if(!data || data === null) return;
-      let player: OtherPlayer = JSON.parse(data);
-      this.otherPlayers.get(player.id)?.destroy();
-      this.otherPlayers.delete(player.id);
-    })
+      if (!data || data === null) return;
+
+      const player: OtherPlayer = JSON.parse(data);
+      const otherPlayer = this.otherPlayers.get(player.id);
+
+      if (otherPlayer) {
+        otherPlayer.destroy();
+        this.otherPlayers.delete(player.id);
+      }
+    });
     socket.on("leftRooms", (data) => {
-      if(!data || data === null) return;
-      let player: OtherPlayer = JSON.parse(data);
+      if (!data || data === null) return;
+      const player: OtherPlayer = JSON.parse(data);
       this.otherPlayers.get(player.id)?.destroy();
       this.otherPlayers.delete(player.id);
-    })
+    });
     socket.on("position", (data) => {
-      let player: OtherPlayer = JSON.parse(data);
+      const player: OtherPlayer = JSON.parse(data);
       this.updateOtherPlayerPosition(player);
     });
     socket.emit("getOtherPlayers");
@@ -340,8 +352,15 @@ export class Town extends Scene implements MovableScene {
 
   activatePortal() {
     if (this.dialogManager.isActive()) return;
+
+    this.otherPlayers.forEach((otherPlayer, id) => {
+      otherPlayer.destroy();
+      this.otherPlayers.delete(id);
+    });
+
     socket.emit("leaveRooms");
     socket.emit("joinRoom", "MAP1");
+
     this.tweens.add({
       targets: this.portal,
       scale: 0.2,
@@ -351,6 +370,7 @@ export class Town extends Scene implements MovableScene {
         this.changeScene();
       },
     });
+
     this.cameras.main.flash(500, 255, 255, 255);
   }
 
@@ -415,26 +435,57 @@ export class Town extends Scene implements MovableScene {
   }
 
   newOtherPlayer(player: OtherPlayer) {
-
-    console.log("newOtherPlayer",typeof player, player, player.x, player.y);
-    const otherPlayer = this.add.sprite(player.x, player.y, "idle");
+    const otherPlayer = this.add.sprite(player.x, player.y, "player-idle"); // Utilisez une texture valide
     otherPlayer.setOrigin(0.5, 1);
     otherPlayer.setDepth(10);
-    otherPlayer.anims.play("idle", true)
+
+    if (!this.anims.exists("idle")) {
+      this.anims.create({
+        key: "idle",
+        frames: this.anims.generateFrameNumbers("player-idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
+
+    otherPlayer.anims.play("idle", true);
     this.otherPlayers.set(player.id, otherPlayer);
   }
 
   updateOtherPlayerPosition(player: OtherPlayer) {
     const otherPlayer = this.otherPlayers.get(player.id);
-    if (!otherPlayer) return;
+    if (!otherPlayer || !otherPlayer.active) {
+      console.warn(`OtherPlayer with ID: ${player.id} not found or inactive`);
+      return;
+    }
+
     otherPlayer.setPosition(player.x, player.y);
     this.otherPlayerRun(otherPlayer);
   }
 
   async otherPlayerRun(otherPlayer: GameObjects.Sprite) {
+    console.log("Running otherPlayerRun for:", otherPlayer);
+
+    if (!otherPlayer || !otherPlayer.anims) {
+      console.warn("OtherPlayer or animation system not available");
+      return;
+    }
+
     otherPlayer.anims.play("run", true);
+
     setTimeout(() => {
-      otherPlayer.anims.play("idle", true);
+      console.log("Setting idle animation for:", otherPlayer);
+
+      if (otherPlayer?.anims) {
+        otherPlayer.anims.play("idle", true);
+      } else {
+        console.warn(
+          "OtherPlayer or animation system not available in setTimeout",
+        );
+      }
     }, 200);
   }
 
