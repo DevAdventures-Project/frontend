@@ -1,4 +1,6 @@
 import ChatLayout from "@/components/ChatLayout";
+import CreateQuest from "@/components/CreateQuest";
+import QuestList from "@/components/QuestList";
 import { socket } from "@/contexts/WebSocketContext";
 import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
@@ -25,8 +27,9 @@ export class CozyCity extends Scene implements MovableScene {
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
   wizardNpc: Npc;
+  questListDom: GameObjects.DOMElement | null;
+  createQuestDom: GameObjects.DOMElement | null;
 
-  // Propriétés de grille pour MovableScene
   tileWidth = 12;
   tileHeight = 12;
 
@@ -500,7 +503,6 @@ export class CozyCity extends Scene implements MovableScene {
   }
 
   create() {
-    // Affichage du background (ici une image, pas un tilemap)
     this.CozyCity = this.add.image(512, 384, "cozy_tiles").setDepth(0);
     this.title = this.add.text(100, 100, "CozyCity", {
       fontFamily: "Arial Black",
@@ -511,9 +513,8 @@ export class CozyCity extends Scene implements MovableScene {
       align: "center",
     });
 
-    // Calcul de l'offset pour centrer la grille dans une fenêtre de 1024x768
     const mapWidthInTiles = 85;
-    const mapHeightInTiles = 64; // Exemple : 30 lignes
+    const mapHeightInTiles = 64;
     const { offsetX, offsetY } = calculateOffsets(
       1024,
       768,
@@ -525,31 +526,15 @@ export class CozyCity extends Scene implements MovableScene {
     this.offsetX = offsetX;
     this.offsetY = offsetY;
 
-    /*this.debugDot = this.add.graphics();
-    this.obstaclesDebugGraphics = this.add.graphics();
-    for (let i = 0; i < this.obstacles.length; i++) {
-      if (this.obstacles[i] !== 0) {
-        const tileX = i % mapWidthInTiles;
-        const tileY = Math.floor(i / mapWidthInTiles);
-        const dotX = offsetX + tileX * this.tileWidth + this.tileWidth / 2;
-        const dotY = offsetY + tileY * this.tileHeight + this.tileHeight / 2;
-        this.obstaclesDebugGraphics.fillStyle(0x00ff00, 1);
-        this.obstaclesDebugGraphics.fillCircle(dotX, dotY, 3);
-      }
-    }*/
-
-    // Création du portail
     this.portal = this.add.image(200, 580, "portal");
     this.portal.setScale(0.1);
     this.portal.setDepth(1);
 
-    // Création du joueur
     this.player = this.add.sprite(650, 80, "player-run");
     this.player.setOrigin(0.5, 0.5);
     this.player.setScale(2);
     this.player.setDepth(2);
 
-    // Création des colliders
     this.portalCollider = new Phaser.Geom.Circle(
       this.portal.x,
       this.portal.y,
@@ -561,7 +546,6 @@ export class CozyCity extends Scene implements MovableScene {
       this.playerRadius,
     );
 
-    // Création des animations
     this.anims.create({
       key: "run",
       frames: this.anims.generateFrameNumbers("player-run", {
@@ -585,7 +569,7 @@ export class CozyCity extends Scene implements MovableScene {
 
     this.tweens.add({
       targets: this.portal,
-      scale: 0.1,
+      scale: 0.15,
       duration: 1000,
       yoyo: true,
       repeat: -1,
@@ -609,13 +593,13 @@ export class CozyCity extends Scene implements MovableScene {
           {
             text: "Voir les quêtes",
             action: () => {
-              // this.showQuestList();
+              this.showQuestList();
             },
           },
           {
             text: "Créer une quête",
             action: () => {
-              // this.showCreateQuest();
+              this.showCreateQuest();
             },
           },
         ],
@@ -624,7 +608,6 @@ export class CozyCity extends Scene implements MovableScene {
 
     this.playerCollider = this.wizardNpc.getCollider();
 
-    // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);
     EventBus.emit("current-scene-ready", this);
   }
@@ -673,8 +656,29 @@ export class CozyCity extends Scene implements MovableScene {
     this.scene.start("Kanojedo");
   }
 
-  // Implémente isPositionBlocked pour la grille CozyCity.
-  // Retourne false si obstacles est vide.
+  showQuestList(): void {
+    this.cleanupQuestUIs();
+    this.questListDom = this.add.dom(850, 100, reactToDom(<QuestList />));
+    this.questListDom.setDepth(1000);
+  }
+
+  showCreateQuest(): void {
+    this.cleanupQuestUIs();
+    this.createQuestDom = this.add.dom(850, 50, reactToDom(<CreateQuest />));
+    this.createQuestDom.setDepth(1000);
+  }
+
+  private cleanupQuestUIs(): void {
+    if (this.questListDom) {
+      this.questListDom.destroy();
+      this.questListDom = null;
+    }
+    if (this.createQuestDom) {
+      this.createQuestDom.destroy();
+      this.createQuestDom = null;
+    }
+  }
+
   isPositionBlocked(x: number, y: number): boolean {
     if (this.obstacles.length === 0) {
       return false;
