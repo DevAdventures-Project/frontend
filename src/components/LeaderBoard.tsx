@@ -7,9 +7,14 @@ import LeaderboardButton from "./ui/LeaderboardToggle";
 export default function LeaderBoard() {
   const [leaderBoardVisible, setLeaderBoardVisible] = useState(false);
   const [users, setUsers] = useState<UserLeaderBoard[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 300, y: -200 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
 
-  const toggleLeaderBoardVisible = () => {
-    setLeaderBoardVisible(!leaderBoardVisible);
+  const toggleLeaderBoardVisible = (status: boolean) => {
+    setLeaderBoardVisible(status);
   };
 
   useEffect(() => {
@@ -22,30 +27,92 @@ export default function LeaderBoard() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (leaderBoardVisible) {
+      if (isDragging) return;
+
+      if (
+        leaderBoardVisible &&
+        leaderboardRef.current &&
+        !leaderboardRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setLeaderBoardVisible(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 10);
+
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [leaderBoardVisible]);
+  }, [leaderBoardVisible, isDragging]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging && leaderboardRef.current) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleMouseMove and handleMouseUp re render every frame
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
 
   return (
     <div className="w-full h-full">
       {leaderBoardVisible && (
-        <div className="fixed bottom-70 right 100 z-50">
-          <LeaderBoardModal users={users} />
+        <div
+          ref={leaderboardRef}
+          className="fixed z-50"
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px)`,
+            bottom: "70px",
+            right: "100px",
+          }}
+        >
+          <div
+            onMouseDown={handleMouseDown}
+            style={{ cursor: isDragging ? "grabbing" : "grab" }}
+          >
+            <LeaderBoardModal users={users} />
+          </div>
         </div>
       )}
 
-      <LeaderboardButton
-        onClick={toggleLeaderBoardVisible}
-        className="fixed bottom-4 right-4 z-50"
-        label="Leaderboard"
-      />
+      <div ref={buttonRef}>
+        <LeaderboardButton
+          onClick={() => toggleLeaderBoardVisible(!leaderBoardVisible)}
+          className="fixed bottom-4 right-4 z-50"
+          label="Leaderboard"
+        />
+      </div>
     </div>
   );
 }

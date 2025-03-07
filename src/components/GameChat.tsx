@@ -1,10 +1,9 @@
 "use client";
 
-import type React from "react";
-
 import type { Message } from "@/models/Message";
 import type { UserChat } from "@/models/User";
 import { Send } from "lucide-react";
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
 interface GameChatProps {
@@ -29,13 +28,11 @@ export default function GameChat({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Scroll to bottom when new messages arrive
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, []);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +42,6 @@ export default function GameChat({
     }
   };
 
-  // Custom drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setDragStart({
@@ -59,7 +55,6 @@ export default function GameChat({
       const newX = e.clientX - dragStart.x;
       const newY = e.clientY - dragStart.y;
 
-      // Optional: Add bounds checking here if needed
       setPosition({ x: newX, y: newY });
     }
   };
@@ -68,7 +63,6 @@ export default function GameChat({
     setIsDragging(false);
   };
 
-  // Set up and clean up event listeners
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isDragging) {
@@ -156,7 +150,6 @@ export default function GameChat({
   );
 }
 
-// Helper function to format time from ISO string
 function formatTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
