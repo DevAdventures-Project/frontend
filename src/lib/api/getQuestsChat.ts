@@ -3,7 +3,7 @@
 import type { Message, QuestMessage } from "@/models/Message";
 
 export async function getQuestsChat(): Promise<Record<number, Message[]>> {
-  const API_URL = "https://hackaton.jayllyz.fr";
+  const API_URL = process.env.API_URL;
 
   const response = await fetch(`${API_URL}/chat`, {
     method: "GET",
