@@ -4,6 +4,7 @@ import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
+import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import {
   calculateOffsets,
@@ -17,6 +18,7 @@ export class Dungeon extends Scene implements MovableScene {
   player: GameObjects.Sprite;
   map: Tilemaps.Tilemap;
   collisionLayer: Phaser.Tilemaps.TilemapLayer;
+  npcCollider: Phaser.Geom.Circle;
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
@@ -26,6 +28,7 @@ export class Dungeon extends Scene implements MovableScene {
   playerMovement: Player;
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
+  wizardNpc: Npc;
 
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
@@ -504,7 +507,7 @@ export class Dungeon extends Scene implements MovableScene {
 
     // Création du portail
     this.portal = this.add.image(770, 290, "portal");
-    this.portal.setScale(0.1);
+    this.portal.setScale(0.2);
     this.portal.setDepth(1);
 
     // Création du joueur
@@ -555,6 +558,38 @@ export class Dungeon extends Scene implements MovableScene {
       repeat: -1,
       ease: "Sine.easeInOut",
     });
+
+    const npcName = "M. Noled";
+    this.wizardNpc = new Npc(this, {
+      name: npcName,
+      x: 350,
+      y: 300,
+      texture: "npc-idle",
+      animation: "npc-idle",
+      interactionRadius: 50,
+      dialogs: {
+        npcName: npcName,
+        messages: [
+          "Bienvenue dans le donjon BDDSM, tu veux voir ma grosse requête ?",
+        ],
+        responses: [
+          {
+            text: "Voir les quêtes",
+            action: () => {
+              this.showQuestList();
+            },
+          },
+          {
+            text: "Créer une quête",
+            action: () => {
+              this.showCreateQuest();
+            },
+          },
+        ],
+      },
+    });
+
+    this.playerCollider = this.wizardNpc.getCollider();
 
     // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);

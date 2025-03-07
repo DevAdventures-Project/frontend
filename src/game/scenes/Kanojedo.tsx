@@ -4,6 +4,7 @@ import { reactToDom } from "@/lib/reactToDom";
 import type { UserChat } from "@/models/User";
 import { type GameObjects, Scene, type Tilemaps } from "phaser";
 import { EventBus } from "../EventBus";
+import { Npc } from "../Npc";
 import { type MovableScene, Player } from "../Player";
 import {
   calculateOffsets,
@@ -20,12 +21,14 @@ export class Kanojedo extends Scene implements MovableScene {
   portal: GameObjects.Image;
   private portalCollider: Phaser.Geom.Circle;
   private playerCollider: Phaser.Geom.Circle;
+  npcCollider: Phaser.Geom.Circle;
   private isOverlapping = false;
   private portalRadius = 20;
   private playerRadius = 10;
   playerMovement: Player;
   debugDot: GameObjects.Graphics;
   obstaclesDebugGraphics: GameObjects.Graphics;
+  rogueNpc: Npc;
 
   // Propriétés de grille pour MovableScene
   tileWidth = 12;
@@ -453,6 +456,10 @@ export class Kanojedo extends Scene implements MovableScene {
         frameHeight: 32,
       },
     );
+    this.load.spritesheet("npc-idle", "assets/npc/Rogue/Idle/Idle-Sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
   }
 
   create() {
@@ -466,6 +473,10 @@ export class Kanojedo extends Scene implements MovableScene {
       strokeThickness: 8,
       align: "center",
     });
+
+    const testSprite = this.add.sprite(100, 100, "player-idle");
+    testSprite.setScale(2);
+    testSprite.play("player-idle");
 
     // Calcul de l'offset pour centrer la grille dans une fenêtre de 1024x768
     const mapWidthInTiles = 85;
@@ -547,6 +558,38 @@ export class Kanojedo extends Scene implements MovableScene {
       repeat: -1,
       ease: "Sine.easeInOut",
     });
+
+    const npcName = "Miss monde des Douzes";
+    this.rogueNpc = new Npc(this, {
+      name: npcName,
+      x: 430,
+      y: 390,
+      texture: "npc-idle",
+      animation: "npc-idle",
+      interactionRadius: 50,
+      dialogs: {
+        npcName: npcName,
+        messages: [
+          "Bonjour, je suis Miss monde des Douzes. Je suis ici pour vous aider. Que puis-je faire pour vous ? ",
+        ],
+        responses: [
+          {
+            text: "Voir les quêtes",
+            action: () => {
+              this.showQuestList();
+            },
+          },
+          {
+            text: "Créer une quête",
+            action: () => {
+              this.showCreateQuest();
+            },
+          },
+        ],
+      },
+    });
+
+    this.playerCollider = this.rogueNpc.getCollider();
 
     // Initialisation du mouvement du joueur avec la logique de grille
     this.playerMovement = new Player(this);
