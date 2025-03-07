@@ -74,8 +74,8 @@ export class Town extends Scene implements MovableScene {
               pseudo: localStorage.getItem("pseudo"),
             } as UserChat
           }
-          changeScene={() => {
-            this.scene.launch("MarketplaceScene");
+          changeScene={(target: string) => {
+            this.scene.launch(target);
           }}
         />,
       ),

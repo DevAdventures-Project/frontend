@@ -7,10 +7,9 @@ import { GameOver } from "./scenes/GameOver";
 import { Kanojedo } from "./scenes/Kanojedo";
 import { MarketplaceScene } from "./scenes/MarketplaceScene";
 import { Preloader } from "./scenes/Preloader";
+import { ProfileScene } from "./scenes/ProfileScene";
 import { Town } from "./scenes/Town";
 
-//  Find out more information about the Game Config at:
-//  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
   width: 1024,
@@ -27,6 +26,7 @@ const config: Phaser.Types.Core.GameConfig = {
     CozyCity,
     Kanojedo,
     MarketplaceScene,
+    ProfileScene,
   ],
   physics: {
     default: "arcade",
