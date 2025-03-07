@@ -82,3 +82,7 @@ export default function App() {
     </div>
   );
 }
+function useState(arg0: { x: number; y: number; }): [any, any] {
+  throw new Error("Function not implemented.");
+}
+
