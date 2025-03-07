@@ -43,6 +43,50 @@ export class Player {
     }
   }
 
+  public moveUpLeft(): void {
+    if (this.isDialogActive) return;
+    this.updatePosition(
+      this.playerPosition.x - this.speedMovement,
+      this.playerPosition.y - this.speedMovement,
+    );
+    if (this.scene.player) {
+      this.scene.player.setFlipX(true);
+    }
+  }
+
+  public moveUpRight(): void {
+    if (this.isDialogActive) return;
+    this.updatePosition(
+      this.playerPosition.x + this.speedMovement,
+      this.playerPosition.y - this.speedMovement,
+    );
+    if (this.scene.player) {
+      this.scene.player.setFlipX(false);
+    }
+  }
+
+  public moveDownLeft(): void {
+    if (this.isDialogActive) return;
+    this.updatePosition(
+      this.playerPosition.x - this.speedMovement,
+      this.playerPosition.y + this.speedMovement,
+    );
+    if (this.scene.player) {
+      this.scene.player.setFlipX(true);
+    }
+  }
+
+  public moveDownRight(): void {
+    if (this.isDialogActive) return;
+    this.updatePosition(
+      this.playerPosition.x + this.speedMovement,
+      this.playerPosition.y + this.speedMovement,
+    );
+    if (this.scene.player) {
+      this.scene.player.setFlipX(false);
+    }
+  }
+
   public moveUp(): void {
     if (this.isDialogActive) return;
     this.updatePosition(
