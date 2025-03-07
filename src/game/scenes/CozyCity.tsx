@@ -255,7 +255,7 @@ export class CozyCity extends Scene implements MovableScene {
     this.questListDom = this.add.dom(
       850,
       100,
-      reactToDom(<QuestList category="Javascript" />),
+      reactToDom(<QuestList category="javascript" />),
     );
     this.questListDom.setDepth(1000);
   }
