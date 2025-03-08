@@ -2,7 +2,7 @@ import type { GameObjects, Scene } from "phaser";
 import type { Dialog, DialogManager } from "./DialogManager";
 import { EventBus } from "./EventBus";
 
-export interface NpcConfig {
+interface NpcConfig {
   name: string;
   x: number;
   y: number;

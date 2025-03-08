@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { postBuyItem } from "@/lib/api/marketplace";
 import { fetchUser } from "@/lib/api/user";
 import type { User } from "@/models/User";
-import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
@@ -20,8 +19,7 @@ interface Item {
 }
 
 interface MarkplaceProps {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  leaveScene: any;
+  leaveScene: () => void;
 }
 
 export default function Marketplace({ leaveScene }: MarkplaceProps) {

@@ -73,7 +73,6 @@ function QuestList({ category }: { category: string }) {
         showCloseButton={false}
       >
         <div className="mx-auto flex max-w-5xl flex-col overflow-hidden rounded-xl border bg-background shadow-lg md:flex-row">
-          {/* Left sidebar - Quest list */}
           <div className="w-full border-r md:w-80">
             <div className="p-4">
               <h2 className="text-xl font-bold">Liste des quêtes</h2>
@@ -116,7 +115,6 @@ function QuestList({ category }: { category: string }) {
             </ScrollArea>
           </div>
 
-          {/* Right panel - Quest details */}
           <div className="flex-1 overflow-hidden w-[800px]">
             {selectedQuest ? (
               <ScrollArea className="h-[600px]">
@@ -244,7 +242,6 @@ function QuestList({ category }: { category: string }) {
                                     (quest) => quest.id !== selectedQuest.id,
                                   ),
                                 );
-                                // Reset the selected quest
                                 setSelectedQuest(null);
                               }
                             } catch (error) {

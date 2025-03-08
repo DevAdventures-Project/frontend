@@ -5,12 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchUserProfile } from "@/lib/api/user";
 import type { UserProfile } from "@/models/User";
 import { ArrowLeft, Calendar } from "lucide-react";
-import Image from "next/image"; // Import Next.js Image component
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface ProfilePageProps {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  leaveScene: any;
+  leaveScene: () => void;
 }
 
 export default function ProfilePage({ leaveScene }: ProfilePageProps) {
@@ -135,9 +134,7 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
     <div className="w-[1024px] h-[768px] p-4 font-pixel bg-[#111] min-h-screen">
       <div className="pixel-border bg-[#222] p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-          {/* Avatar and basic info */}
           <div className="flex flex-col items-center gap-2">
-            {/* Profile Picture - Minecraft style */}
             <div className="w-32 h-32 relative">
               <div className="absolute inset-0 border-4 border-[#5c9dca] bg-[#333] overflow-hidden">
                 <Image
@@ -148,7 +145,6 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                   className="w-full h-full pixel-image"
                 />
               </div>
-              {/* Pixel corners */}
               <div className="absolute top-0 left-0 w-2 h-2 bg-[#7bb7e0]" />
               <div className="absolute top-0 right-0 w-2 h-2 bg-[#7bb7e0]" />
               <div className="absolute bottom-0 left-0 w-2 h-2 bg-[#7bb7e0]" />
@@ -211,9 +207,7 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Fixed height container for tabs */}
               <div className="h-[350px] bg-[#333] pixel-border-sm">
-                {/* Inventory Tab */}
                 <TabsContent value="inventory" className="mt-0 h-full">
                   <ScrollArea className="h-full p-3">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -241,7 +235,6 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                           <div className="text-pokemon-yellow text-[8px] mt-1">
                             x{item.count}
                           </div>
-                          {/* Minecraft-style item slot corners */}
                           <div className="absolute top-0 left-0 w-1 h-1 bg-[#555]" />
                           <div className="absolute top-0 right-0 w-1 h-1 bg-[#555]" />
                           <div className="absolute bottom-0 left-0 w-1 h-1 bg-[#555]" />
@@ -252,7 +245,6 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                   </ScrollArea>
                 </TabsContent>
 
-                {/* Quests Tab */}
                 <TabsContent value="quests" className="mt-0 h-full">
                   <ScrollArea className="h-full p-3">
                     <div className="flex flex-col gap-2">
@@ -296,7 +288,6 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              {/* Rank image instead of colored circle */}
                               <div className="flex items-center">
                                 <div className="w-6 h-6 relative pixel-rank">
                                   <Image
@@ -316,7 +307,6 @@ export default function ProfilePage({ leaveScene }: ProfilePageProps) {
                               </div>
                             </div>
                           </div>
-                          {/* Minecraft-style corners */}
                           <div className="absolute top-0 left-0 w-1 h-1 bg-[#555]" />
                           <div className="absolute top-0 right-0 w-1 h-1 bg-[#555]" />
                           <div className="absolute bottom-0 left-0 w-1 h-1 bg-[#555]" />

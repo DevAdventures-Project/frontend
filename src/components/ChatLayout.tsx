@@ -8,8 +8,7 @@ import ChatToggleButton from "./ui/ChatToggle";
 
 interface ChatLayoutProps {
   user: { id: number | null; pseudo: string };
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  changeScene: any;
+  changeScene: (scene: string) => void;
 }
 
 export default function ChatLayout({ user, changeScene }: ChatLayoutProps) {

@@ -51,7 +51,6 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
       });
     });
 
-    // Cleanup: Disconnect from all quest rooms
     return () => {
       availableRooms.forEach((room) => {
         if (room.id !== 0) {
@@ -202,7 +201,6 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
         height: "24rem",
       }}
     >
-      {/* Sidebar */}
       {isSidebarOpen && (
         <div
           className="w-[160px] bg-gray-900 border-r border-gray-700 flex flex-col"
@@ -248,9 +246,7 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
         </div>
       )}
 
-      {/* Chat area */}
       <div className="flex-1 flex flex-col">
-        {/* Chat header - draggable area */}
         <div
           className="bg-gray-800 px-4 py-2 flex justify-between items-center"
           onMouseDown={handleMouseDown}
@@ -280,7 +276,6 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
           </div>
         </div>
 
-        {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
           {messages[currentRoomId]?.map((message: Message) => (
             <div
@@ -309,7 +304,6 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input area */}
         <form
           onSubmit={handleSendMessage}
           className="p-2 bg-gray-900 flex items-center gap-2"

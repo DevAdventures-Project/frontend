@@ -15,7 +15,6 @@ export default function App() {
   const walkableScenes = ["Town", "Cobol", "Javascript", "Scratch"];
   const longPressDelay = 1000;
   const keysPressed = useRef<Set<string>>(new Set());
-  const [cursor, setCursor] = useState(null);
 
   useEffect(() => {
     const handlePositionUpdate = (position: { x: number; y: number }) => {
@@ -81,10 +80,7 @@ export default function App() {
               currentScene.playerMovement.moveRight();
               break;
           }
-          // const longPressTimer = setTimeout(() => handleKeyDown(event), longPressDelay);
           keysPressed.current.add(event.key);
-
-          // return () => clearTimeout(longPressTimer);
         }
       }
     };

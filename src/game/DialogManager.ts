@@ -7,7 +7,7 @@ export interface Dialog {
   responses?: DialogResponse[];
 }
 
-export interface DialogResponse {
+interface DialogResponse {
   text: string;
   next?: Dialog;
   action?: () => void;

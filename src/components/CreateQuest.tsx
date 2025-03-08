@@ -108,7 +108,6 @@ function CreateQuest() {
   const issueUrl = watch("issueUrl");
   const jiraProjectId = watch("jiraProjectId");
   const jiraIssueLink = watch("jiraIssueLink");
-  const issueSource = watch("issueSource");
 
   useEffect(() => {
     const getRepos = async () => {

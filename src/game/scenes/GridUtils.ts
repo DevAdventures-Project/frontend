@@ -29,23 +29,3 @@ export function getTileCoordinates(
   const tileY = Math.floor(adjustedY / tileHeight);
   return { tileX, tileY };
 }
-
-export function getTileIndex(
-  x: number,
-  y: number,
-  tileWidth: number,
-  tileHeight: number,
-  offsetX: number,
-  offsetY: number,
-  mapWidthInTiles: number,
-): number {
-  const { tileX, tileY } = getTileCoordinates(
-    x,
-    y,
-    tileWidth,
-    tileHeight,
-    offsetX,
-    offsetY,
-  );
-  return tileY * mapWidthInTiles + tileX;
-}
