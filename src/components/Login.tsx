@@ -64,6 +64,7 @@ const LoginPreview = (props: LoginProps) => {
     }
   }
 
+
   if (loggedIn) {
     socket.emit(
       "register",

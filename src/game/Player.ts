@@ -141,7 +141,6 @@ export class Player {
 
   public updatePosition(x: number, y: number): void {
     if (!this.scene.player || this.isDialogActive) return;
-
     const tileWidth: number = this.scene.tileWidth;
     const tileHeight: number = this.scene.tileHeight;
     const tileX = Math.floor(x / tileWidth);
@@ -159,6 +158,9 @@ export class Player {
       console.log(`Blocked move at: x=${x}, y=${y} (tile index ${index})`);
       return;
     }
+
+    // Mise à jour de la position si le déplacement est valide.
+    socket.emit("position", JSON.stringify({ x, y }));
 
     this.playerPosition = { x, y };
     this.scene.player.setPosition(x, y);
