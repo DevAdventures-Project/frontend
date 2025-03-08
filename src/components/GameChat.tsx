@@ -28,6 +28,7 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
   const [availableRooms, setAvailableRooms] = useState<
     { id: number; name: string }[]
   >([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const wsClient = useContext(WebSocketContext);
 
   const handleRoomChange = (roomId: number) => {
@@ -35,35 +36,44 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
   };
 
   useEffect(() => {
-    getQuestsChat().then((data) => {
-      setMessages(data);
-    });
-    getChatRooms(localStorage?.getItem("accessToken") || "").then((data) => {
-      setAvailableRooms(data);
-
-      data.forEach((room) => {
-        if (room.id !== 0) {
-          wsClient.emit("joinQuestRoom", {
-            questId: room.id,
-            user: currentUser,
-          });
-        }
+    if (isVisible && !isDataLoaded) {
+      getQuestsChat().then((data) => {
+        setMessages(data);
       });
-    });
+
+      getChatRooms(localStorage?.getItem("accessToken") || "").then((data) => {
+        setAvailableRooms(data);
+
+        data.forEach((room) => {
+          if (room.id !== 0) {
+            wsClient.emit("joinQuestRoom", {
+              questId: room.id,
+              user: currentUser,
+            });
+          }
+        });
+
+        setIsDataLoaded(true);
+      });
+    }
 
     return () => {
-      availableRooms.forEach((room) => {
-        if (room.id !== 0) {
-          wsClient.emit("leaveQuestRoom", {
-            questId: room.id,
-            user: currentUser,
-          });
-        }
-      });
+      if (isVisible && availableRooms.length > 0) {
+        availableRooms.forEach((room) => {
+          if (room.id !== 0) {
+            wsClient.emit("leaveQuestRoom", {
+              questId: room.id,
+              user: currentUser,
+            });
+          }
+        });
+      }
     };
-  }, [wsClient, currentUser, availableRooms]);
+  }, [wsClient, currentUser, availableRooms, isVisible, isDataLoaded]);
 
   useEffect(() => {
+    if (!isVisible) return;
+
     const handleMessage = (data: string) => {
       const newMessage: Message = JSON.parse(data);
 
@@ -80,9 +90,11 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
     return () => {
       wsClient.off("message", handleMessage);
     };
-  }, [wsClient, currentUser.id]);
+  }, [wsClient, currentUser.id, isVisible]);
 
   useEffect(() => {
+    if (!isVisible) return;
+
     const handleQuestMessage = (data: QuestMessage) => {
       if (data.author.id === currentUser.id) return;
 
@@ -101,7 +113,7 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
     return () => {
       wsClient.off("questMessage", handleQuestMessage);
     };
-  }, [wsClient, currentUser.id]);
+  }, [wsClient, currentUser.id, isVisible]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,10 +160,10 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
   };
 
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && isVisible) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, []);
+  }, [isVisible]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -265,13 +277,14 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
               )}
             </button>
             <h3 className="text-white font-bold truncate max-w-[10rem]">
-              {availableRooms.find((room) => room.id === currentRoomId)?.name}
+              {availableRooms.find((room) => room.id === currentRoomId)?.name ||
+                "Général"}
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-xs text-gray-400">
               {messages[currentRoomId]?.length || "0"} message
-              {messages[currentRoomId]?.length < 1 && "s"}
+              {messages[currentRoomId]?.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -313,7 +326,8 @@ export default function GameChat({ isVisible, currentUser }: GameChatProps) {
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             placeholder={`Envoyer un message à ${
-              availableRooms.find((room) => room.id === currentRoomId)?.name
+              availableRooms.find((room) => room.id === currentRoomId)?.name ||
+              "Général"
             }`}
             className="flex-1 bg-gray-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
           />

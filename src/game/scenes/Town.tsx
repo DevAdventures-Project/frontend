@@ -109,48 +109,48 @@ export class Town extends Scene implements MovableScene {
   }
 
   create() {
-    socket.emit("getOtherPlayers");
+    // socket.emit("getOtherPlayers");
 
-    socket.on("otherPlayers", (data) => {
-      const otherPlayers = JSON.parse(data).map((player: string) =>
-        JSON.parse(player),
-      );
-      this.otherPlayers.clear();
-      otherPlayers.forEach((player: OtherPlayer) => {
-        this.newOtherPlayer(player);
-      });
-    });
+    // socket.on("otherPlayers", (data) => {
+    //   const otherPlayers = JSON.parse(data).map((player: string) =>
+    //     JSON.parse(player),
+    //   );
+    //   this.otherPlayers.clear();
+    //   otherPlayers.forEach((player: OtherPlayer) => {
+    //     this.newOtherPlayer(player);
+    //   });
+    // });
 
-    socket.on("joinedRoom", (data) => {
-      const player: OtherPlayer = JSON.parse(data);
-      this.newOtherPlayer(player);
-    });
+    // socket.on("joinedRoom", (data) => {
+    //   console.log("here", data);
+    //   this.newOtherPlayer(player);
+    // });
 
-    socket.on("leftRoom", (data) => {
-      if (!data || data === null) return;
+    // socket.on("leftRoom", (data) => {
+    //   if (!data || data === null) return;
 
-      const player: OtherPlayer = JSON.parse(data);
-      const otherPlayer = this.otherPlayers.get(player.id);
+    //   const player: OtherPlayer = JSON.parse(data);
+    //   const otherPlayer = this.otherPlayers.get(player.id);
 
-      if (otherPlayer) {
-        otherPlayer.destroy();
-        this.otherPlayers.delete(player.id);
-      }
-    });
+    //   if (otherPlayer) {
+    //     otherPlayer.destroy();
+    //     this.otherPlayers.delete(player.id);
+    //   }
+    // });
 
-    socket.on("leftRooms", (data) => {
-      if (!data || data === null) return;
-      const player: OtherPlayer = JSON.parse(data);
-      this.otherPlayers.get(player.id)?.destroy();
-      this.otherPlayers.delete(player.id);
-    });
+    // socket.on("leftRooms", (data) => {
+    //   if (!data || data === null) return;
+    //   const player: OtherPlayer = JSON.parse(data);
+    //   this.otherPlayers.get(player.id)?.destroy();
+    //   this.otherPlayers.delete(player.id);
+    // });
 
-    socket.on("position", (data) => {
-      const player: OtherPlayer = JSON.parse(data);
-      this.updateOtherPlayerPosition(player);
-    });
+    // socket.on("position", (data) => {
+    //   const player: OtherPlayer = JSON.parse(data);
+    //   this.updateOtherPlayerPosition(player);
+    // });
 
-    socket.emit("getOtherPlayers");
+    // socket.emit("getOtherPlayers");
 
     this.town = this.add.image(512, 384, "town").setDepth(0);
     this.title = this.add.text(100, 100, "The Hub", {

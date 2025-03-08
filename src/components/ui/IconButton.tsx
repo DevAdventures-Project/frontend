@@ -14,6 +14,7 @@ function IconButton() {
         alt="Icon"
         width={60}
         height={60}
+        priority
         className="object-contain"
       />
     </button>
